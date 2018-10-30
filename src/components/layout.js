@@ -3,7 +3,11 @@ import PropTypes from 'prop-types'
 import Helmet from 'react-helmet'
 import { StaticQuery, graphql } from 'gatsby'
 
-import Header from './header'
+import withMuiRoot from '../mui/withRoot'
+
+// import Header from './header'
+import AppBar from './appbar'
+
 import './layout.css'
 
 const Layout = ({ children }) => (
@@ -21,14 +25,11 @@ const Layout = ({ children }) => (
       <>
         <Helmet
           title={data.site.siteMetadata.title}
-          meta={[
-            { name: 'description', content: 'Sample' },
-            { name: 'keywords', content: 'sample, something' },
-          ]}
+          meta={[{ name: 'description', content: 'Sample' }, { name: 'keywords', content: 'sample, something' }]}
         >
           <html lang="en" />
         </Helmet>
-        <Header siteTitle={data.site.siteMetadata.title} />
+        <AppBar />
         <div
           style={{
             margin: '0 auto',
@@ -48,4 +49,4 @@ Layout.propTypes = {
   children: PropTypes.node.isRequired,
 }
 
-export default Layout
+export default withMuiRoot(Layout)
