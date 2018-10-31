@@ -1,7 +1,7 @@
 // @flow
 
 // TODO: Our smartHome-context
-// import smartHomeCtx from './smartHome/context'
+import smartHomeCtx from './smartHomeCtx'
 
 import { StoreApi, createContext } from 'react-zedux'
 import { createStore } from 'zedux'
@@ -18,12 +18,10 @@ import { createStore } from 'zedux'
 
 // Create Reactor
 class RootApi extends StoreApi {
-  // TODO: not yet ready:
-  // store = createStore().use({
-  //   partSearchCtx,
-  // })
-
-  store = createStore().hydrate({ hello: 'world' })
+  store = createStore().use({
+    smartHome: smartHomeCtx,
+    fermenter: {},
+  })
 
   // static actors = {
   //   findModels,
