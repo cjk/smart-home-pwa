@@ -18,3 +18,19 @@ export type SmartHomeState = {
   livestate: { [id: string]: KnxAddress },
   eventHistory: Array<BusEvent>,
 }
+
+type Room = {
+  name: string,
+  story: string,
+}
+
+export type Rooms = {
+  [id: string]: Room,
+}
+
+export type Prefs = {
+  rooms: Array<string>,
+  showOnlyActive: boolean,
+}
+
+export type AddressMap = { [id: string]: KnxAddress }

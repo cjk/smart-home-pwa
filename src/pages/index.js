@@ -2,24 +2,17 @@ import React from 'react'
 import { Link } from 'gatsby'
 
 import Layout from '../components/layout'
-
-// import { foo } from '../context/smartHomeStore'
-import { withSmartHomeCtx } from '../context/root'
+import Dashboard from '../components/dashboard'
 
 const IndexPage = props => {
-  const { smartHomeStore } = props
-
-  console.log('SmartHomeStore:')
-  console.log(smartHomeStore.getState())
+  // const { smartHomeStore } = props
 
   return (
     <Layout>
-      <h1>Hi people</h1>
-      <p>Welcome to your new Gatsby site.</p>
-      <p />
+      <Dashboard />
       <Link to="/page-2/">Go to page 2</Link>
     </Layout>
   )
 }
 
-export default withSmartHomeCtx(IndexPage)
+export default IndexPage

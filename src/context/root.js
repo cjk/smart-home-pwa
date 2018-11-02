@@ -1,6 +1,6 @@
 // @flow
 
-import createSmartHomeStore, { upsertKnxAddr } from './smartHomeStore'
+import createSmartHomeStore, { upsertKnxAddr, getLivestate } from './smartHomeStore'
 
 import { StoreApi, createContext } from 'react-zedux'
 import { createStore } from 'zedux'
@@ -22,7 +22,7 @@ class smartHomeApi extends StoreApi {
   //   findModels,
   // }
 
-  // static selectors = { activeUserInput }
+  static selectors = { getLivestate }
 }
 
 // Build store hierarchy. The root-store itself doesn't have a purpose yet
@@ -54,7 +54,7 @@ const sub = knxLiveAddr$
   )
   .subscribe(
     addr => {
-      log.debug(`KNX-address value changed / was added: ${JSON.stringify(addr)}`)
+      // log.debug(`KNX-address value changed / was added: ${JSON.stringify(addr)}`)
       smartHomeStore.dispatch(upsertKnxAddr(addr))
     },
     err => log.error(`got an error: ${err}`),

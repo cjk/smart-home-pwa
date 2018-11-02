@@ -3,7 +3,7 @@
 import type { SmartHomeState } from '../types.js'
 
 import * as R from 'ramda'
-import { act, createStore, react } from 'zedux'
+import { act, createStore, react, select } from 'zedux'
 
 // import { logger } from '../lib/debug'
 
@@ -14,6 +14,9 @@ const initialState: SmartHomeState = {
 }
 
 export const upsertKnxAddr = act('upsertKnxAddr')
+export const setKnxAddrVal = act('setKnxAddrVal')
+
+export const getLivestate = select(state => state.livestate)
 
 const smartHomeReactor = react(initialState)
   .to(upsertKnxAddr)
