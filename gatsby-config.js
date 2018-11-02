@@ -1,6 +1,6 @@
 module.exports = {
   siteMetadata: {
-    title: 'Gatsby Default Starter',
+    title: 'Gatsby SmartHome App',
   },
   plugins: [
     'gatsby-plugin-react-helmet',

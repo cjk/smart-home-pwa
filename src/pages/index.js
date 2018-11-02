@@ -2,13 +2,15 @@ import React from 'react'
 import { Link } from 'gatsby'
 
 import Layout from '../components/layout'
-import { withRootCtx } from '../context/root'
+
+// import { foo } from '../context/smartHomeStore'
+import { withSmartHomeCtx } from '../context/root'
 
 const IndexPage = props => {
-  const { rootStore } = props
+  const { smartHomeStore } = props
 
-  console.log('Rootstore:')
-  console.log(rootStore.getState())
+  console.log('SmartHomeStore:')
+  console.log(smartHomeStore.getState())
 
   return (
     <Layout>
@@ -20,4 +22,4 @@ const IndexPage = props => {
   )
 }
 
-export default withRootCtx(IndexPage)
+export default withSmartHomeCtx(IndexPage)

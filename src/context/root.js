@@ -1,43 +1,77 @@
 // @flow
 
-// TODO: Our smartHome-context
-import smartHomeCtx from './smartHomeCtx'
+import createSmartHomeStore, { upsertKnxAddr } from './smartHomeStore'
 
 import { StoreApi, createContext } from 'react-zedux'
 import { createStore } from 'zedux'
+import { catchError } from 'rxjs/operators'
 
-// TODO: Import selectors from context
-// import {
-//   blabla,
-// } from './smartHome/selectors'
+import { knxLiveAddr$ } from './peerStreams'
 
-// TODO: Perhaps import those too?
-// import { setSelectedPart, updateUserInput, findParts, getPartValidities } from './partSearch/partActions'
-// import { setModelNo, findModels } from './partSearch/modelActions'
-// import { setCgCsg } from './partSearch/topologyActions'
+import { logger } from '../lib/debug'
+
+const log = logger('rootCtx')
+
+const smartHomeStore = createSmartHomeStore()
 
 // Create Reactor
-class RootApi extends StoreApi {
-  store = createStore().use({
-    smartHome: smartHomeCtx,
-    fermenter: {},
-  })
+class smartHomeApi extends StoreApi {
+  store = smartHomeStore
 
   // static actors = {
   //   findModels,
-  //   findParts,
-  //   getPartValidities,
-  //   setModelNo,
-  //   setCgCsg,
-  //   setSelectedPart,
-  //   updateUserInput,
   // }
 
-  // static selectors = { activeUserInput, modelResults, partResults, selectedPart, topologyResults, partValidities }
+  // static selectors = { activeUserInput }
 }
 
-const RootContext = createContext(RootApi)
+// Build store hierarchy. The root-store itself doesn't have a purpose yet
+const rootStore = createStore().use({
+  smartHome: smartHomeStore,
+  // TODO: this will become it's own store once we get to it.
+  // Look at https://bowheart.github.io/react-zedux/guides/timeTravel.html for hints on how to make a fermenter-store
+  // accessible in the fermenter-component hierarchy
+  fermenter: {},
+})
 
-export default RootContext
+// // DEBUGGING
+// rootStore.inspect((storeBase, action) => {
+//   console.log('Root Store inspector received action', action)
+// })
+// rootStore.subscribe((newState, oldState) => {
+//   console.log('Root Store state updated', newState)
+// })
+// smartHomeStore.inspect((storeBase, action) => {
+//   console.log('Store "smartHome" inspector received action', action)
+// })
+
+const sub = knxLiveAddr$
+  .pipe(
+    catchError(err => {
+      log.error(`An error occured: %O - canceling subscription`, err)
+      sub.unsubscribe()
+    })
+  )
+  .subscribe(
+    addr => {
+      log.debug(`KNX-address value changed / was added: ${JSON.stringify(addr)}`)
+      smartHomeStore.dispatch(upsertKnxAddr(addr))
+    },
+    err => log.error(`got an error: ${err}`),
+    () => log.debug('KNX-address update stream completed!')
+  )
+
+setTimeout(() => {
+  sub.unsubscribe()
+  log.debug('unsubscribed!')
+  log.debug(`final state is ${JSON.stringify(smartHomeStore.getState())}`)
+}, 60000)
+
+// const RootContext = createContext(RootApi)
+const SmartHomeContext = createContext(smartHomeApi)
+
 // Partially apply withRoot-Component with root-store
-export const withRootCtx = RootContext.consume('rootStore')
+// const withRootCtx = RootContext.consume('rootStore')
+const withSmartHomeCtx = SmartHomeContext.consume('smartHomeStore')
+
+export { SmartHomeContext, withSmartHomeCtx }
