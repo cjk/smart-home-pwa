@@ -1,6 +1,11 @@
 // @flow
 
-import createSmartHomeStore, { upsertKnxAddr, getLivestate, setKnxAddrVal } from './smartHomeStore'
+import createSmartHomeStore, {
+  upsertKnxAddr,
+  selLivestate,
+  selManuallySwitchedLights,
+  setKnxAddrVal,
+} from './smartHomeStore'
 
 import { StoreApi, createContext } from 'react-zedux'
 import { createStore } from 'zedux'
@@ -22,7 +27,7 @@ class smartHomeApi extends StoreApi {
     setKnxAddrVal,
   }
 
-  static selectors = { getLivestate }
+  static selectors = { selLivestate, selManuallySwitchedLights }
 }
 
 // Build store hierarchy. The root-store itself doesn't have a purpose yet

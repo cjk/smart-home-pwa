@@ -11,7 +11,7 @@ import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import OverviewLights from './overviewLights'
 
-import { toggleAddrVal, onlyManuallySwitchedLights } from '../lib/utils'
+import { toggleAddrVal } from '../lib/utils'
 
 import { compose } from 'ramda'
 
@@ -33,14 +33,14 @@ const styles = theme => ({
 })
 
 const Dashboard = ({ classes, smartHomeStore }: Props) => {
-  const { getLivestate, setKnxAddrVal } = smartHomeStore
+  const { selLivestate, selManuallySwitchedLights, setKnxAddrVal } = smartHomeStore
   const onLightSwitch = (addr: KnxAddress) => smartHomeStore.dispatch(setKnxAddrVal(toggleAddrVal(addr)))
 
   return (
     <Grid container className={classes.root}>
       <Grid item xs={12}>
         <OverviewLights
-          addresses={onlyManuallySwitchedLights(getLivestate())}
+          addresses={selManuallySwitchedLights(selLivestate())}
           onLightSwitch={onLightSwitch}
           className={classes.control}
         />

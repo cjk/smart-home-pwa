@@ -24,14 +24,11 @@ const styles = {
   actorIcon: {
     pointerEvents: 'none',
   },
-  lightOn: {
-    color: 'orange',
-  },
 }
 
 const Groundfloor = ({ smartHomeStore, classes }: Props) => {
-  const { getLivestate, setKnxAddrVal }: { getLivestate: AddressMap } = smartHomeStore
-  const livestate = getLivestate()
+  const { selLivestate, setKnxAddrVal }: { selLivestate: AddressMap } = smartHomeStore
+  const livestate = selLivestate()
 
   const isOn = addr => (has(addr, livestate) ? livestate[addr].value : console.warn(`Address <${addr}> not found!`))
   const onLightSwitch = addrId => smartHomeStore.dispatch(setKnxAddrVal(toggleAddrVal(livestate[addrId])))
