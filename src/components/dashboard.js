@@ -6,21 +6,19 @@ import type { KnxAddress, Prefs, Rooms, AddressMap } from '../types'
 
 import * as React from 'react'
 
+import { withSmartHomeCtx } from '../context/root'
 import { withStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import OverviewLights from './overviewLights'
-
-import { withSmartHomeCtx } from '../context/root'
-import { setKnxAddrVal } from '../context/smartHomeStore'
 
 import { toggleAddrVal, onlyManuallySwitchedLights } from '../lib/utils'
 
 import { compose } from 'ramda'
 
 type Props = {
-  livestate: AddressMap,
-  prefs: Prefs,
-  rooms: Rooms,
+  smartHomeStore: any,
+  // prefs: Prefs,
+  // rooms: Rooms,
   classes: Object,
 }
 
@@ -35,7 +33,7 @@ const styles = theme => ({
 })
 
 const Dashboard = ({ classes, smartHomeStore }: Props) => {
-  const { getLivestate } = smartHomeStore
+  const { getLivestate, setKnxAddrVal } = smartHomeStore
   const onLightSwitch = (addr: KnxAddress) => smartHomeStore.dispatch(setKnxAddrVal(toggleAddrVal(addr)))
 
   return (

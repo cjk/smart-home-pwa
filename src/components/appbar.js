@@ -9,9 +9,9 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import HomeIcon from '@material-ui/icons/Home'
 import MainIcon from '@material-ui/icons/Dashboard'
-// import ConnIndicator from './ConnectionIndicator'
 import { grey, indigo } from '@material-ui/core/colors'
 
+import { Link } from 'gatsby'
 import { compose } from 'ramda'
 
 type AppBarProps = {
@@ -53,15 +53,15 @@ const MainAppBar = (props: AppBarProps) => {
       <AppBar className={classes.appBar}>
         <Toolbar>
           <IconButton aria-label="Home" className={classes.homeButton}>
-            <a className={classes.linkText}>
+            <Link to="/" className={classes.linkText}>
               <HomeIcon />
-            </a>
+            </Link>
           </IconButton>
 
-          <IconButton aria-label="Main" className={classes.main}>
-            <a className={classes.linkText}>
+          <IconButton aria-label="Maps" className={classes.main}>
+            <Link to="/map" className={classes.linkText}>
               <MainIcon />
-            </a>
+            </Link>
           </IconButton>
 
           <Button className={classes.flexFromHere}>

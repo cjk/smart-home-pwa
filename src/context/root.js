@@ -1,6 +1,6 @@
 // @flow
 
-import createSmartHomeStore, { upsertKnxAddr, getLivestate } from './smartHomeStore'
+import createSmartHomeStore, { upsertKnxAddr, getLivestate, setKnxAddrVal } from './smartHomeStore'
 
 import { StoreApi, createContext } from 'react-zedux'
 import { createStore } from 'zedux'
@@ -18,9 +18,9 @@ const smartHomeStore = createSmartHomeStore()
 class smartHomeApi extends StoreApi {
   store = smartHomeStore
 
-  // static actors = {
-  //   findModels,
-  // }
+  static actors = {
+    setKnxAddrVal,
+  }
 
   static selectors = { getLivestate }
 }
