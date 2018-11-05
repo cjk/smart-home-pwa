@@ -31,7 +31,7 @@ const Groundfloor = ({ smartHomeStore, classes }: Props) => {
   const livestate = selLivestate()
 
   const isOn = addr => (has(addr, livestate) ? livestate[addr].value : console.warn(`Address <${addr}> not found!`))
-  const onLightSwitch = addrId => smartHomeStore.dispatch(setKnxAddrVal(toggleAddrVal(livestate[addrId])))
+  const onLightSwitch = addrId => setKnxAddrVal(toggleAddrVal(livestate[addrId]))
 
   return (
     <svg

@@ -11,13 +11,14 @@ import { StoreApi, createContext } from 'react-zedux'
 import { createStore } from 'zedux'
 import { catchError } from 'rxjs/operators'
 
-import { knxLiveAddr$ } from './peerStreams'
+import { createPeer } from './networkPeer'
 
 import { logger } from '../lib/debug'
 
 const log = logger('rootCtx')
 
-const smartHomeStore = createSmartHomeStore()
+const Peer = createPeer()
+const smartHomeStore = createSmartHomeStore(Peer)
 
 // Create Reactor
 class smartHomeApi extends StoreApi {
@@ -50,7 +51,7 @@ const rootStore = createStore().use({
 //   console.log('Store "smartHome" inspector received action', action)
 // })
 
-const sub = knxLiveAddr$
+const sub = Peer.getLivestate$()
   .pipe(
     catchError(err => {
       log.error(`An error occured: %O - canceling subscription`, err)

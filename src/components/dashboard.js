@@ -34,7 +34,7 @@ const styles = theme => ({
 
 const Dashboard = ({ classes, smartHomeStore }: Props) => {
   const { selLivestate, selManuallySwitchedLights, setKnxAddrVal } = smartHomeStore
-  const onLightSwitch = (addr: KnxAddress) => smartHomeStore.dispatch(setKnxAddrVal(toggleAddrVal(addr)))
+  const onLightSwitch = (addr: KnxAddress) => setKnxAddrVal(toggleAddrVal(addr))
 
   return (
     <Grid container className={classes.root}>

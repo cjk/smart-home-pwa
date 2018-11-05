@@ -8,7 +8,7 @@ import * as R from 'ramda'
 
 import { logger } from '../lib/debug'
 
-const log = logger('peerStreams')
+const log = logger('networkPeer')
 
 const peer = Gun('http://localhost:8765/gun')
 
@@ -23,4 +23,13 @@ const knxLiveAddr$ = Observable.create(observer => {
   return () => addrLst.map().off()
 })
 
-export { knxLiveAddr$ }
+function createPeer() {
+  return {
+    peer,
+    getLivestate$() {
+      return knxLiveAddr$
+    },
+  }
+}
+
+export { createPeer }
