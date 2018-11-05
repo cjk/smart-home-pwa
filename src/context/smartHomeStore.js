@@ -4,6 +4,8 @@ import type { SmartHomeState, AddressMap, KnxAddress } from '../types.js'
 
 import * as R from 'ramda'
 import { act, createStore, react, select } from 'zedux'
+import { catchError } from 'rxjs/operators'
+
 import { logger } from '../lib/debug'
 
 // Filter-conditions for addresses
@@ -26,7 +28,35 @@ export const selManuallySwitchedLights: AddressMap = select(selLivestate, addrLs
   R.filter(R.allPass([isOn, isLight, noFeedback]), addrLst)
 )
 
-function createSmartHomeStore(Peer) {
+// Return subscription for remote KNX-state mutations / events and how to act on them
+function handleKnxUpdates(peer, store) {
+  const subscription = peer
+    .getLivestate$()
+    .pipe(
+      catchError(err => {
+        log.error(`An error occured: %O`, err)
+      })
+    )
+    .subscribe(
+      addr => {
+        // log.debug(`KNX-address value changed / was added: ${JSON.stringify(addr)}`)
+        store.dispatch(upsertKnxAddr(addr))
+      },
+      err => log.error(`got an error: ${err}`),
+      () => log.debug('KNX-address update stream completed!')
+    )
+
+  // TODO: remove once canceling subscriptions are handled in a better way:
+  setTimeout(() => {
+    subscription.unsubscribe()
+    log.debug('unsubscribed from KNX-state-stream!')
+    log.debug(`final state is ${JSON.stringify(store.getState())}`)
+  }, 60000)
+
+  return subscription
+}
+
+function createSmartHomeStore(peer) {
   const smartHomeReactor = react(initialState)
     .to(upsertKnxAddr)
     .withReducers((state, { payload }) => {
@@ -37,7 +67,13 @@ function createSmartHomeStore(Peer) {
       log.debug(`Changing address from x to ${JSON.stringify(action.payload)}`)
     )
 
-  return createStore().use(smartHomeReactor)
+  const store = createStore()
+  store.use(smartHomeReactor)
+
+  // Activate handlers - must occur *after* store-reactor is established!
+  handleKnxUpdates(peer, store)
+
+  return store
 }
 
-export default createSmartHomeStore
+export { createSmartHomeStore, handleKnxUpdates }

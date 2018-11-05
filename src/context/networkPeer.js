@@ -23,12 +23,20 @@ const knxLiveAddr$ = Observable.create(observer => {
   return () => addrLst.map().off()
 })
 
+const sendUpdateGroupAddrReq = (addrId, newValue) => {
+  peer
+    .get('knxRequests')
+    .get(addrId)
+    .put({ action: 'write', value: newValue })
+}
+
 function createPeer() {
   return {
     peer,
     getLivestate$() {
       return knxLiveAddr$
     },
+    sendUpdateGroupAddrReq,
   }
 }
 

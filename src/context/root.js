@@ -1,24 +1,17 @@
 // @flow
 
-import createSmartHomeStore, {
-  upsertKnxAddr,
-  selLivestate,
-  selManuallySwitchedLights,
-  setKnxAddrVal,
-} from './smartHomeStore'
+import { createSmartHomeStore, selLivestate, selManuallySwitchedLights, setKnxAddrVal } from './smartHomeStore'
 
 import { StoreApi, createContext } from 'react-zedux'
 import { createStore } from 'zedux'
-import { catchError } from 'rxjs/operators'
-
 import { createPeer } from './networkPeer'
 
 import { logger } from '../lib/debug'
 
 const log = logger('rootCtx')
 
-const Peer = createPeer()
-const smartHomeStore = createSmartHomeStore(Peer)
+const peer = createPeer()
+const smartHomeStore = createSmartHomeStore(peer)
 
 // Create Reactor
 class smartHomeApi extends StoreApi {
@@ -50,28 +43,6 @@ const rootStore = createStore().use({
 // smartHomeStore.inspect((storeBase, action) => {
 //   console.log('Store "smartHome" inspector received action', action)
 // })
-
-const sub = Peer.getLivestate$()
-  .pipe(
-    catchError(err => {
-      log.error(`An error occured: %O - canceling subscription`, err)
-      sub.unsubscribe()
-    })
-  )
-  .subscribe(
-    addr => {
-      // log.debug(`KNX-address value changed / was added: ${JSON.stringify(addr)}`)
-      smartHomeStore.dispatch(upsertKnxAddr(addr))
-    },
-    err => log.error(`got an error: ${err}`),
-    () => log.debug('KNX-address update stream completed!')
-  )
-
-setTimeout(() => {
-  sub.unsubscribe()
-  log.debug('unsubscribed!')
-  log.debug(`final state is ${JSON.stringify(smartHomeStore.getState())}`)
-}, 60000)
 
 // const RootContext = createContext(RootApi)
 const SmartHomeContext = createContext(smartHomeApi)
