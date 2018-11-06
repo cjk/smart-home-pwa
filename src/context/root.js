@@ -10,8 +10,8 @@ import { logger } from '../lib/debug'
 
 const log = logger('rootCtx')
 
-const peer = createPeer()
-const smartHomeStore = createSmartHomeStore(peer)
+const Peer = createPeer()
+const smartHomeStore = createSmartHomeStore(Peer)
 
 // Create Reactor
 class smartHomeApi extends StoreApi {

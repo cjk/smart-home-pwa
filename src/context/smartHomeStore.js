@@ -29,9 +29,8 @@ export const selManuallySwitchedLights: AddressMap = select(selLivestate, addrLs
 )
 
 // Return subscription for remote KNX-state mutations / events and how to act on them
-function handleKnxUpdates(peer, store) {
-  const subscription = peer
-    .getLivestate$()
+function handleKnxUpdates(Peer, store) {
+  const subscription = Peer.getLivestate$()
     .pipe(
       catchError(err => {
         log.error(`An error occured: %O`, err)
@@ -56,22 +55,27 @@ function handleKnxUpdates(peer, store) {
   return subscription
 }
 
-function createSmartHomeStore(peer) {
+function createSmartHomeStore(Peer) {
   const smartHomeReactor = react(initialState)
     .to(upsertKnxAddr)
     .withReducers((state, { payload }) => {
       return R.assocPath(['livestate', payload.id], payload, state)
     })
     .to(setKnxAddrVal)
-    .withProcessors((dispatch, action, state) =>
-      log.debug(`Changing address from x to ${JSON.stringify(action.payload)}`)
-    )
+    .withProcessors((dispatch, action, state) => {
+      const { payload: addr } = action
+      log.debug(`Changing address from x to ${JSON.stringify(addr)}`)
+      Peer.peer
+        .get('knxAddrList')
+        .get(addr.id)
+        .put({ value: addr.value })
+    })
 
   const store = createStore()
   store.use(smartHomeReactor)
 
   // Activate handlers - must occur *after* store-reactor is established!
-  handleKnxUpdates(peer, store)
+  handleKnxUpdates(Peer, store)
 
   return store
 }
