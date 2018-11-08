@@ -4,8 +4,6 @@ import Gun from 'gun'
 import { Observable } from 'rxjs'
 import * as R from 'ramda'
 
-// import { map, mergeMap, flatMap, switchMap, tap, toArray } from 'rxjs/operators'
-
 import { logger } from '../lib/debug'
 
 const log = logger('networkPeer')
@@ -30,11 +28,24 @@ const sendUpdateGroupAddrReq = (addrId, newValue) => {
     .put({ action: 'write', value: newValue })
 }
 
+const scenes$ = Observable.create(observer => {
+  const sceneLst = peer.get('scenes')
+  sceneLst.map().once(scene => {
+    observer.next(R.dissoc('_', scene))
+    // Even though we use #once we can't tell if all scenes arrived so this stream never completes :(
+    // observer.complete()
+  })
+  return () => sceneLst.map().off()
+})
+
 function createPeer() {
   return {
     peer,
     getLivestate$() {
       return knxLiveAddr$
+    },
+    getScenes$() {
+      return scenes$
     },
     sendUpdateGroupAddrReq,
   }

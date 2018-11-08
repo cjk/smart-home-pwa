@@ -1,10 +1,10 @@
 // @flow
 
-import type { SmartHomeState, AddressMap, KnxAddress } from '../types.js'
+import type { SmartHomeState, AddressMap, KnxAddress, Scenes } from '../types.js'
 
 import * as R from 'ramda'
 import { act, createStore, react, select } from 'zedux'
-import { catchError } from 'rxjs/operators'
+import { bufferTime, catchError, filter, tap } from 'rxjs/operators'
 
 import { logger } from '../lib/debug'
 
@@ -18,22 +18,25 @@ const log = logger('smtHomeStore')
 
 const initialState: SmartHomeState = {
   livestate: {},
+  scenes: [],
 }
 
 export const upsertKnxAddr = act('upsertKnxAddr')
+export const upsertScenes = act('upsertScenes')
 export const setKnxAddrVal = act('setKnxAddrVal')
 
 export const selLivestate: AddressMap = select(state => state.livestate)
 export const selManuallySwitchedLights: AddressMap = select(selLivestate, addrLst =>
   R.filter(R.allPass([isOn, isLight, noFeedback]), addrLst)
 )
+export const selScenes: Scenes = select(state => state.scenes)
 
 // Return subscription for remote KNX-state mutations / events and how to act on them
-function handleKnxUpdates(Peer, store) {
+const handleKnxUpdates = (Peer, store) => {
   const subscription = Peer.getLivestate$()
     .pipe(
       catchError(err => {
-        log.error(`An error occured: %O`, err)
+        log.error(`An error occured while handling KNX live-updates: %O`, err)
       })
     )
     .subscribe(
@@ -45,12 +48,28 @@ function handleKnxUpdates(Peer, store) {
       () => log.debug('KNX-address update stream completed!')
     )
 
-  // TODO: remove once canceling subscriptions are handled in a better way:
-  setTimeout(() => {
-    subscription.unsubscribe()
-    log.debug('unsubscribed from KNX-state-stream!')
-    log.debug(`final state is ${JSON.stringify(store.getState())}`)
-  }, 60000)
+  return subscription
+}
+
+const syncScenesToStore = (Peer, store) => {
+  // Returns an array of arrived scenes every 2 seconds
+  const subscription = Peer.getScenes$()
+    .pipe(
+      bufferTime(2000),
+      filter(ary => !R.isEmpty(ary)),
+      tap(v => log.debug('got: %O', v)),
+      catchError(err => {
+        log.error(`An error occured while loading scenes from remote-peers: %O`, err)
+      })
+    )
+    .subscribe(
+      sceneAry => {
+        log.debug(`Remote scenes arrived: ${JSON.stringify(sceneAry)}`)
+        store.dispatch(upsertScenes(sceneAry))
+      },
+      err => log.error(`got an error: ${err}`),
+      () => log.debug('Scene update stream completed!')
+    )
 
   return subscription
 }
@@ -70,6 +89,10 @@ function createSmartHomeStore(Peer) {
         .get(addr.id)
         .put({ value: addr.value })
     })
+    .to(upsertScenes)
+    .withReducers((state, { payload }) => {
+      return R.assoc('scenes', R.concat(state.scenes, payload), state)
+    })
 
   const store = createStore()
   store.use(smartHomeReactor)
@@ -77,7 +100,9 @@ function createSmartHomeStore(Peer) {
   // Activate handlers - must occur *after* store-reactor is established!
   handleKnxUpdates(Peer, store)
 
+  syncScenesToStore(Peer, store)
+
   return store
 }
 
-export { createSmartHomeStore, handleKnxUpdates }
+export { createSmartHomeStore }

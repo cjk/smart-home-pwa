@@ -19,6 +19,13 @@ export type SmartHomeState = {
   eventHistory: Array<BusEvent>,
 }
 
+export type Scene = {
+  id: string,
+  name: string,
+  tasks: CrontabTask,
+}
+export type Scenes = Array<Scene>
+
 type Room = {
   name: string,
   story: string,
