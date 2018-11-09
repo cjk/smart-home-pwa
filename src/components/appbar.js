@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import HomeIcon from '@material-ui/icons/Home'
 import MainIcon from '@material-ui/icons/Dashboard'
+import ScenesIcon from '@material-ui/icons/WallpaperOutlined'
 import { grey, indigo } from '@material-ui/core/colors'
 
 import { Link } from 'gatsby'
@@ -61,6 +62,12 @@ const MainAppBar = (props: AppBarProps) => {
           <IconButton aria-label="Maps" className={classes.main}>
             <Link to="/map" className={classes.linkText}>
               <MainIcon />
+            </Link>
+          </IconButton>
+
+          <IconButton aria-label="Scenes" className={classes.main}>
+            <Link to="/scenes" className={classes.linkText}>
+              <ScenesIcon />
             </Link>
           </IconButton>
 

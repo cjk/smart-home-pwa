@@ -2,9 +2,10 @@
 
 // Container-component for all dashboard logic
 
-import type { KnxAddress, Prefs, Rooms, AddressMap } from '../types'
+import type { KnxAddress } from '../types'
 
 import * as React from 'react'
+import * as R from 'ramda'
 
 import { withSmartHomeCtx } from '../context/root'
 import { withStyles } from '@material-ui/core/styles'
@@ -13,12 +14,8 @@ import OverviewLights from './overviewLights'
 
 import { toggleAddrVal } from '../lib/utils'
 
-import { compose } from 'ramda'
-
 type Props = {
   smartHomeStore: any,
-  // prefs: Prefs,
-  // rooms: Rooms,
   classes: Object,
 }
 
@@ -49,7 +46,7 @@ const Dashboard = ({ classes, smartHomeStore }: Props) => {
   )
 }
 
-export default compose(
+export default R.compose(
   withStyles(styles),
   withSmartHomeCtx
 )(Dashboard)
