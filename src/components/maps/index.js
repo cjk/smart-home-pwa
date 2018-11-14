@@ -1,12 +1,14 @@
 // @flow
-import type { Prefs, Rooms, AddressMap } from '../types'
+import type { AddressMap } from '../types'
 
 import * as React from 'react'
+import * as R from 'ramda'
+
+import Typography from '@material-ui/core/Typography'
+
 import { withSmartHomeCtx } from '../../context/root'
 import { withStyles } from '@material-ui/core/styles'
 import { toggleAddrVal } from '../../lib/utils'
-
-import { compose, has } from 'ramda'
 
 import Light from './icons/light'
 
@@ -30,10 +32,10 @@ const Groundfloor = ({ smartHomeStore, classes }: Props) => {
   const { selLivestate, setKnxAddrVal }: { selLivestate: AddressMap } = smartHomeStore
   const livestate = selLivestate()
 
-  const isOn = addr => (has(addr, livestate) ? livestate[addr].value : console.warn(`Address <${addr}> not found!`))
+  const isOn = addr => (R.has(addr, livestate) ? livestate[addr].value : console.warn(`Address <${addr}> not found!`))
   const onLightSwitch = addrId => setKnxAddrVal(toggleAddrVal(livestate[addrId]))
 
-  return (
+  return livestate ? (
     <svg
       id="SVGRoot"
       version="1.1"
@@ -151,10 +153,12 @@ const Groundfloor = ({ smartHomeStore, classes }: Props) => {
         />
       </g>
     </svg>
+  ) : (
+    <Typography variant="h5">Still syncing address-state ...</Typography>
   )
 }
 
-export default compose(
+export default R.compose(
   withStyles(styles),
   withSmartHomeCtx
 )(Groundfloor)

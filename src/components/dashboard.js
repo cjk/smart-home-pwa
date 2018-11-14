@@ -7,9 +7,12 @@ import type { KnxAddress } from '../types'
 import * as React from 'react'
 import * as R from 'ramda'
 
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+
 import { withSmartHomeCtx } from '../context/root'
 import { withStyles } from '@material-ui/core/styles'
-import Grid from '@material-ui/core/Grid'
+
 import OverviewLights from './overviewLights'
 
 import { toggleAddrVal } from '../lib/utils'
@@ -33,16 +36,18 @@ const Dashboard = ({ classes, smartHomeStore }: Props) => {
   const { selLivestate, selManuallySwitchedLights, setKnxAddrVal } = smartHomeStore
   const onLightSwitch = (addr: KnxAddress) => setKnxAddrVal(toggleAddrVal(addr))
 
-  return (
+  return selLivestate() ? (
     <Grid container className={classes.root}>
       <Grid item xs={12}>
         <OverviewLights
-          addresses={selManuallySwitchedLights(selLivestate())}
+          addresses={selManuallySwitchedLights()}
           onLightSwitch={onLightSwitch}
           className={classes.control}
         />
       </Grid>
     </Grid>
+  ) : (
+    <Typography variant="h5">Still syncing address-state ...</Typography>
   )
 }
 

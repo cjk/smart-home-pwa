@@ -6,6 +6,7 @@ import {
   selManuallySwitchedLights,
   selScenes,
   setKnxAddrVal,
+  activateScene,
 } from './smartHomeStore'
 
 import { StoreApi, createContext } from 'react-zedux'
@@ -25,6 +26,7 @@ class smartHomeApi extends StoreApi {
 
   static actors = {
     setKnxAddrVal,
+    activateScene,
   }
 
   static selectors = { selLivestate, selManuallySwitchedLights, selScenes }

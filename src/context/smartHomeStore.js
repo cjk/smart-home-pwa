@@ -4,7 +4,7 @@ import type { SmartHomeState, AddressMap, KnxAddress, Scenes } from '../types.js
 
 import * as R from 'ramda'
 import { act, createStore, react, select } from 'zedux'
-import { bufferTime, catchError, filter, tap } from 'rxjs/operators'
+import { buffer, debounceTime, catchError } from 'rxjs/operators'
 
 import { logger } from '../lib/debug'
 
@@ -18,12 +18,14 @@ const log = logger('smtHomeStore')
 
 const initialState: SmartHomeState = {
   livestate: {},
-  scenes: [],
+  scenes: {},
+  cronjobs: {},
 }
 
 export const upsertKnxAddr = act('upsertKnxAddr')
 export const upsertScenes = act('upsertScenes')
 export const setKnxAddrVal = act('setKnxAddrVal')
+export const activateScene = act('activateScene')
 
 export const selLivestate: AddressMap = select(state => state.livestate)
 export const selManuallySwitchedLights: AddressMap = select(selLivestate, addrLst =>
@@ -53,18 +55,19 @@ const handleKnxUpdates = (Peer, store) => {
 
 const syncScenesToStore = (Peer, store) => {
   // Returns an array of arrived scenes every 2 seconds
-  const subscription = Peer.getScenes$()
+  const scene$ = Peer.getScenes$()
+  const subscription = scene$
     .pipe(
-      bufferTime(2000),
-      filter(ary => !R.isEmpty(ary)),
-      tap(v => log.debug('got: %O', v)),
+      // Hold new scene-changes back for some time to prevent too rapid screen-updates
+      buffer(scene$.pipe(debounceTime(100))),
+      // tap(s => log.debug('got scene with 1-n tasks: %O', s)),
       catchError(err => {
         log.error(`An error occured while loading scenes from remote-peers: %O`, err)
       })
     )
     .subscribe(
       sceneAry => {
-        log.debug(`Remote scenes arrived: ${JSON.stringify(sceneAry)}`)
+        // log.debug(`One or more updated remote scenes arrived: ${JSON.stringify(sceneAry)}`)
         store.dispatch(upsertScenes(sceneAry))
       },
       err => log.error(`got an error: ${err}`),
@@ -91,7 +94,22 @@ function createSmartHomeStore(Peer) {
     })
     .to(upsertScenes)
     .withReducers((state, { payload }) => {
-      return R.assoc('scenes', R.concat(state.scenes, payload), state)
+      // Updated Scenes arrive in a array and may contain the same scene-id several times, as it was updated over time
+      // with incoming task-elements
+      return R.pipe(
+        R.reduce((acc, scene) => R.assoc(scene.id, scene, acc), state.scenes),
+        R.assoc('scenes', R.__, state.scenes)
+      )(payload)
+    })
+    .to(activateScene)
+    .withProcessors((dispatch, action, state) => {
+      const { payload } = action
+      log.debug(`Activating scene: ${JSON.stringify(payload)}`)
+      // TODO:
+      // Peer.peer
+      //   .get('knxAddrList')
+      //   .get(addr.id)
+      //   .put({ value: addr.value })
     })
 
   const store = createStore()
