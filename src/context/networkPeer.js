@@ -42,14 +42,41 @@ const scenes$ = Observable.create(observer => {
         .once(hndl)
     fromEventPattern(tasksHndlr)
       .pipe(
+        // tap(t => log.debug(`Raw task: ${JSON.stringify(t)}`)),
         map(t => R.dissoc('_', R.head(t))),
         scan((tasks, task) => R.append(task, tasks), [])
       )
       .subscribe(tasks => observer.next({ id: scene.id, name: scene.name, tasks }))
-    // With Gun, we can't tell when all scenes / tasks have arrived so this stream never completes :(
+    // With Gun, we can't tell when all scenes / tasks have arrived so this stream never completes
     // observer.complete()
   })
   return () => sceneLst.map().off()
+})
+
+// Retrieves all cronjobs first and then also all tasks for each job in an async fashion.
+// It's observer will emit a new cronjob + tasks whenever a new task arrives over the network and never ends.
+const cronjob$ = Observable.create(observer => {
+  const cronjobLst = peer.get('crontab')
+  cronjobLst.map().once(cronjob => {
+    const tasksHndlr = hndl =>
+      cronjobLst
+        .get(cronjob.jobId)
+        .get('tasks')
+        .map()
+        .once(hndl)
+    fromEventPattern(tasksHndlr)
+      .pipe(
+        map(t => R.dissoc('_', R.head(t))),
+        scan((tasks, task) => R.append(task, tasks), [])
+      )
+      .subscribe(tasks => {
+        // log.debug(`got a remote cronjob: ${JSON.stringify(R.assoc('tasks', tasks, R.dissoc('_', cronjob)))}`)
+        return observer.next(R.assoc('tasks', tasks, R.dissoc('_', cronjob)))
+      })
+    // With Gun, we can't tell when all scenes / tasks have arrived so this stream never completes :(
+    // observer.complete()
+  })
+  return () => cronjobLst.map().off()
 })
 
 function createPeer() {
@@ -60,6 +87,9 @@ function createPeer() {
     },
     getScenes$() {
       return scenes$
+    },
+    getCronjobs$() {
+      return cronjob$
     },
     sendUpdateGroupAddrReq,
   }

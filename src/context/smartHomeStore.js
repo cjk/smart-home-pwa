@@ -19,11 +19,12 @@ const log = logger('smtHomeStore')
 const initialState: SmartHomeState = {
   livestate: {},
   scenes: {},
-  cronjobs: {},
+  crontab: {},
 }
 
 export const upsertKnxAddr = act('upsertKnxAddr')
 export const upsertScenes = act('upsertScenes')
+export const upsertCronjobs = act('upsertCronjobs')
 export const setKnxAddrVal = act('setKnxAddrVal')
 export const activateScene = act('activateScene')
 
@@ -53,6 +54,7 @@ const handleKnxUpdates = (Peer, store) => {
   return subscription
 }
 
+// TODO: Refactor out into own module
 const syncScenesToStore = (Peer, store) => {
   // Returns an array of arrived scenes every 2 seconds
   const scene$ = Peer.getScenes$()
@@ -77,6 +79,31 @@ const syncScenesToStore = (Peer, store) => {
   return subscription
 }
 
+// TODO: Refactor out into own module
+const syncCronjobsToStore = (Peer, store) => {
+  // Returns an array of arrived cronjobs every 2 seconds
+  const cronjob$ = Peer.getCronjobs$()
+  const subscription = cronjob$
+    .pipe(
+      // Hold new cronjob-changes back for some time to prevent too rapid screen-updates
+      buffer(cronjob$.pipe(debounceTime(100))),
+      // tap(s => log.debug('got cronjob with 1-n tasks: %O', s)),
+      catchError(err => {
+        log.error(`An error occured while loading cronjobs from remote-peers: %O`, err)
+      })
+    )
+    .subscribe(
+      cronjobAry => {
+        // log.debug(`One or more updated remote cronjobs arrived: ${JSON.stringify(sceneAry)}`)
+        store.dispatch(upsertCronjobs(cronjobAry))
+      },
+      err => log.error(`got an error: ${err}`),
+      () => log.debug('Cronjob update stream completed!')
+    )
+
+  return subscription
+}
+
 function createSmartHomeStore(Peer) {
   const smartHomeReactor = react(initialState)
     .to(upsertKnxAddr)
@@ -92,13 +119,25 @@ function createSmartHomeStore(Peer) {
         .get(addr.id)
         .put({ value: addr.value })
     })
+    .to(upsertCronjobs)
+    .withReducers((state, { payload }) => {
+      // Updated Cronjobs arrive in a array and may contain the same job-id several times, as it was updated over time
+      // with incoming task-elements
+      return R.pipe(
+        R.reduce((acc, cronjob) => R.assoc(cronjob.jobId, cronjob, acc), state.crontab),
+        R.assoc('crontab', R.__, state)
+      )(payload)
+    })
     .to(upsertScenes)
     .withReducers((state, { payload }) => {
       // Updated Scenes arrive in a array and may contain the same scene-id several times, as it was updated over time
       // with incoming task-elements
+      log.debug(`Scenes before update: ${JSON.stringify(state.scenes)}`)
+      log.debug(`Updated scenes-array: ${JSON.stringify(payload)}`)
       return R.pipe(
         R.reduce((acc, scene) => R.assoc(scene.id, scene, acc), state.scenes),
-        R.assoc('scenes', R.__, state.scenes)
+        R.tap(v => log.debug(`Setting state to: ${JSON.stringify(v)}`)),
+        R.assoc('scenes', R.__, state)
       )(payload)
     })
     .to(activateScene)
@@ -119,6 +158,7 @@ function createSmartHomeStore(Peer) {
   handleKnxUpdates(Peer, store)
 
   syncScenesToStore(Peer, store)
+  syncCronjobsToStore(Peer, store)
 
   return store
 }
