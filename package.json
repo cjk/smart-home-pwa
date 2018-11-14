@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "Claus Klingberg <cjk@pobox.com>",
   "dependencies": {
-    "@material-ui/core": "3.3.2",
+    "@material-ui/core": "3.5.1",
     "@material-ui/icons": "latest",
     "date-fns": "^1.29.0",
     "debug": "^4.1.0",
@@ -22,6 +22,7 @@
     "react-jss": "latest",
     "react-zedux": "^0.4.1",
     "rxjs": "^6.3.3",
+    "shortid": "^2.2.14",
     "supports-color": "^5.5.0",
     "zedux": "^0.0.21"
   },

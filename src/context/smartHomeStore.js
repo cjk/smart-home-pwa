@@ -5,6 +5,7 @@ import type { SmartHomeState, AddressMap, KnxAddress, Scenes } from '../types.js
 import * as R from 'ramda'
 import { act, createStore, react, select } from 'zedux'
 import { buffer, debounceTime, catchError } from 'rxjs/operators'
+import { createCronjobFromScene } from './cronjobs'
 
 import { logger } from '../lib/debug'
 
@@ -132,23 +133,20 @@ function createSmartHomeStore(Peer) {
     .withReducers((state, { payload }) => {
       // Updated Scenes arrive in a array and may contain the same scene-id several times, as it was updated over time
       // with incoming task-elements
-      log.debug(`Scenes before update: ${JSON.stringify(state.scenes)}`)
-      log.debug(`Updated scenes-array: ${JSON.stringify(payload)}`)
       return R.pipe(
         R.reduce((acc, scene) => R.assoc(scene.id, scene, acc), state.scenes),
-        R.tap(v => log.debug(`Setting state to: ${JSON.stringify(v)}`)),
         R.assoc('scenes', R.__, state)
       )(payload)
     })
     .to(activateScene)
     .withProcessors((dispatch, action, state) => {
-      const { payload } = action
-      log.debug(`Activating scene: ${JSON.stringify(payload)}`)
-      // TODO:
-      // Peer.peer
-      //   .get('knxAddrList')
-      //   .get(addr.id)
-      //   .put({ value: addr.value })
+      const { sceneId, activate } = action.payload
+      const cronjob = createCronjobFromScene(sceneId, R.path(['scenes', sceneId, 'tasks'], state), activate)
+      log.debug(`Created cron-job: ${JSON.stringify(cronjob)}`)
+      Peer.peer
+        .get('crontab')
+        .get(cronjob.jobId)
+        .put(cronjob)
     })
 
   const store = createStore()
