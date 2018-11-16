@@ -10,6 +10,7 @@ import IconButton from '@material-ui/core/IconButton'
 import HomeIcon from '@material-ui/icons/Home'
 import MainIcon from '@material-ui/icons/Dashboard'
 import ScenesIcon from '@material-ui/icons/WallpaperOutlined'
+import CrontabIcon from '@material-ui/icons/WatchLaterOutlined'
 import { grey, indigo } from '@material-ui/core/colors'
 
 import { Link } from 'gatsby'
@@ -23,9 +24,8 @@ type AppBarProps = {
   classes: Object,
 }
 
-const styles = {
+const styles = theme => ({
   root: {
-    position: 'relative',
     width: '100%',
     marginBottom: 65,
   },
@@ -38,10 +38,18 @@ const styles = {
   linkText: {
     color: grey[900],
   },
-  flexFromHere: {
+  grow: {
     flex: 1,
   },
-}
+  fermenterButton: {
+    position: 'relative',
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing.unit * 50,
+      width: 'auto',
+    },
+  },
+})
 
 const MainAppBar = (props: AppBarProps) => {
   const {
@@ -71,7 +79,15 @@ const MainAppBar = (props: AppBarProps) => {
             </Link>
           </IconButton>
 
-          <Button className={classes.flexFromHere}>
+          <IconButton aria-label="Crontab" className={classes.main}>
+            <Link to="/crontab" className={classes.linkText}>
+              <CrontabIcon />
+            </Link>
+          </IconButton>
+
+          <div className={classes.grow} />
+
+          <Button className={classes.fermenterButton}>
             <a className={classes.linkText}>Fermenter</a>
           </Button>
 

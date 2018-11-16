@@ -5,6 +5,7 @@ import {
   selLivestate,
   selManuallySwitchedLights,
   selScenes,
+  selCrontab,
   setKnxAddrVal,
   activateScene,
 } from './smartHomeStore'
@@ -29,7 +30,7 @@ class smartHomeApi extends StoreApi {
     activateScene,
   }
 
-  static selectors = { selLivestate, selManuallySwitchedLights, selScenes }
+  static selectors = { selLivestate, selManuallySwitchedLights, selScenes, selCrontab }
 }
 
 // Build store hierarchy. The root-store itself doesn't have a purpose yet

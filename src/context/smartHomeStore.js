@@ -33,6 +33,7 @@ export const selManuallySwitchedLights: AddressMap = select(selLivestate, addrLs
   R.filter(R.allPass([isOn, isLight, noFeedback]), addrLst)
 )
 export const selScenes: Scenes = select(state => state.scenes)
+export const selCrontab: Crontab = select(state => state.crontab)
 
 // Return subscription for remote KNX-state mutations / events and how to act on them
 const handleKnxUpdates = (Peer, store) => {
