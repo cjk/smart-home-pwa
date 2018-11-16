@@ -6,7 +6,6 @@ import * as R from 'ramda'
 import { act, createStore, react, select } from 'zedux'
 import { buffer, debounceTime, catchError } from 'rxjs/operators'
 import { createCronjobFromScene } from './cronjobs'
-
 import { logger } from '../lib/debug'
 
 // Filter-conditions for addresses
@@ -91,6 +90,7 @@ const syncCronjobsToStore = (Peer, store) => {
       // tap(s => log.debug('got cronjob with 1-n tasks: %O', s)),
       catchError(err => {
         log.error(`An error occured while loading cronjobs from remote-peers: %O`, err)
+        return []
       })
     )
     .subscribe(

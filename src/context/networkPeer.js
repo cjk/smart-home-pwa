@@ -57,25 +57,38 @@ const scenes$ = Observable.create(observer => {
 // It's observer will emit a new cronjob + tasks whenever a new task arrives over the network and never ends.
 const cronjob$ = Observable.create(observer => {
   const cronjobLst = peer.get('crontab')
-  cronjobLst.map().once(cronjob => {
-    const tasksHndlr = hndl =>
-      cronjobLst
-        .get(cronjob.jobId)
-        .get('tasks')
-        .map()
-        .once(hndl)
-    fromEventPattern(tasksHndlr)
-      .pipe(
-        map(t => R.dissoc('_', R.head(t))),
-        scan((tasks, task) => R.append(task, tasks), [])
-      )
-      .subscribe(tasks => {
-        // log.debug(`got a remote cronjob: ${JSON.stringify(R.assoc('tasks', tasks, R.dissoc('_', cronjob)))}`)
-        return observer.next(R.assoc('tasks', tasks, R.dissoc('_', cronjob)))
-      })
-    // With Gun, we can't tell when all scenes / tasks have arrived so this stream never completes :(
-    // observer.complete()
-  })
+  cronjobLst
+    // Iterate over available jobs, but filter out old-nulled-out cronjobs
+    .map(j => (j === null ? undefined : j))
+    .on(
+      cronjob => {
+        // NOTE / PENDING: Since we *still* get null-objects here when the backend removes processed temporary cronjobs,
+        // *despite* we're filtering out nulls above, we need this additional conditional logic here. Might be a bug in
+        // GunDB?!
+        if (R.isNil(cronjob)) {
+          observer.error(cronjob)
+        } else {
+          const tasksHndlr = hndl =>
+            cronjobLst
+              .get(cronjob.jobId)
+              .get('tasks')
+              .map()
+              .once(hndl)
+          fromEventPattern(tasksHndlr)
+            .pipe(
+              map(t => R.dissoc('_', R.head(t))),
+              scan((tasks, task) => R.append(task, tasks), [])
+            )
+            .subscribe(tasks => {
+              // log.debug(`got a remote cronjob: ${JSON.stringify(R.assoc('tasks', tasks, R.dissoc('_', cronjob)))}`)
+              return observer.next(R.assoc('tasks', tasks, R.dissoc('_', cronjob)))
+            })
+          // With Gun, we can't tell when all scenes / tasks have arrived so this stream never completes :(
+          // observer.complete()
+        }
+      },
+      { change: true }
+    )
   return () => cronjobLst.map().off()
 })
 
