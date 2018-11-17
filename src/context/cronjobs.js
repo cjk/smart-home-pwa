@@ -2,7 +2,7 @@
 
 import type { CronJob, Task } from '../types'
 
-import shortid from 'shortid'
+import nanoid from 'nanoid'
 import * as R from 'ramda'
 
 const jobTemplate: CronJob = {
@@ -20,8 +20,9 @@ const buildCronjobWithTasks = (name: string, tasksAry: Array<Task>) => {
   const jobIdLens = R.lens(R.prop('jobId'), R.assoc('jobId'))
   const orgJobId = R.view(jobIdLens)(jobTemplate)
 
-  // Remove slash in scene-name and append unique id
-  const newJobId = R.set(jobIdLens, `${orgJobId}${R.replace(/\//, '', name)}-${shortid.generate()}`)
+  // Remove slash in scene-name and append unique id (using a length of 8 symbols - see
+  // https://zelark.github.io/nano-id-cc/ for background)
+  const newJobId = R.set(jobIdLens, `${orgJobId}${R.replace(/\//, '', name)}-${nanoid(8)}`)
 
   const tasks = R.reduce((acc, task) => ({ [task.target]: task, ...acc }), {}, tasksAry)
 
