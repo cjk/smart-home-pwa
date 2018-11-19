@@ -8,17 +8,17 @@
     "@material-ui/icons": "latest",
     "date-fns": "^1.29.0",
     "debug": "^4.1.0",
-    "gatsby": "^2.0.37",
+    "gatsby": "^2.0.50",
     "gatsby-plugin-flow": "^1.0.2",
     "gatsby-plugin-manifest": "^2.0.7",
-    "gatsby-plugin-offline": "^2.0.11",
+    "gatsby-plugin-offline": "^2.0.15",
     "gatsby-plugin-react-helmet": "^3.0.1",
-    "gun": "^0.9.99997",
+    "gun": "^0.9.99999",
     "jss": "latest",
     "nanoid": "^2.0.0",
-    "ramda": "^0.25.0",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "ramda": "^0.26.0",
+    "react": "^16.7.0-alpha.2",
+    "react-dom": "^16.7.0-alpha.2",
     "react-helmet": "^5.2.0",
     "react-jss": "latest",
     "react-zedux": "^0.4.1",
@@ -37,6 +37,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
+    "eslint-plugin-react-hooks": "^0.0.0",
     "prettier": "^1.14.2"
   },
   "repository": {

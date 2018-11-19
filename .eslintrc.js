@@ -7,7 +7,7 @@ module.exports = {
     es6: true,
   },
   extends: ['eslint:recommended', 'plugin:flowtype/recommended', 'plugin:react/recommended'],
-  plugins: ['flowtype'],
+  plugins: ['flowtype', 'react-hooks'],
   globals: {
     window: true,
     EventHandler: true,
@@ -44,6 +44,7 @@ module.exports = {
     'comma-dangle': ['error', 'only-multiline'],
     'max-len': ['error', 120, { ignoreComments: true }],
     'one-var': 0,
+    'react-hooks/rules-of-hooks': 'error',
   },
   settings: {
     react: {
