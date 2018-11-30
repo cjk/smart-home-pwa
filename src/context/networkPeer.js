@@ -92,6 +92,23 @@ const cronjob$ = Observable.create(observer => {
   return () => cronjobLst.map().off()
 })
 
+const fermenterState$ = Observable.create(observer => {
+  peer
+    .get('fermenter')
+    .map()
+    .on((newState, type) => {
+      log.debug(`Type of fermenter-state is <${type}>`)
+      observer.next(R.dissoc('_', newState))
+      // Never completes
+      // observer.complete()
+    })
+  return () =>
+    peer
+      .get('fermenter')
+      .map()
+      .off()
+})
+
 function createPeer() {
   return {
     peer,
@@ -105,6 +122,9 @@ function createPeer() {
       return cronjob$
     },
     sendUpdateGroupAddrReq,
+    getFermenterState$() {
+      return fermenterState$
+    },
   }
 }
 

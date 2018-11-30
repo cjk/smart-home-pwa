@@ -5,7 +5,7 @@ import SceneSelect from '../components/scenes'
 
 import { SmartHomeContext } from '../context/root'
 
-const MapPage = props => {
+const ScenesPage = props => {
   return (
     <SmartHomeContext.Provider>
       <Layout>
@@ -15,4 +15,4 @@ const MapPage = props => {
   )
 }
 
-export default MapPage
+export default ScenesPage

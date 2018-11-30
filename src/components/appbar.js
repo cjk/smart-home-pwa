@@ -88,7 +88,9 @@ const MainAppBar = (props: AppBarProps) => {
           <div className={classes.grow} />
 
           <Button className={classes.fermenterButton}>
-            <a className={classes.linkText}>Fermenter</a>
+            <Link to="/fermenter" className={classes.linkText}>
+              Fermenter
+            </Link>
           </Button>
 
           {/* <ConnIndicator connState={connState} connErr={connErr} /> */}

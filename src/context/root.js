@@ -10,8 +10,9 @@ import {
   activateScene,
 } from './smartHomeStore'
 
+import { createFermenterStore, selFermenterRts, selLimits, updateRts, setFermenterCommand } from './fermenterStore'
+
 import { StoreApi, createContext } from 'react-zedux'
-import { createStore } from 'zedux'
 import { createPeer } from './networkPeer'
 
 import { logger } from '../lib/debug'
@@ -19,9 +20,9 @@ import { logger } from '../lib/debug'
 const log = logger('rootCtx')
 
 const Peer = createPeer()
-const smartHomeStore = createSmartHomeStore(Peer)
 
-// Create Reactor
+// Create store and reactor for smartHome context
+const smartHomeStore = createSmartHomeStore(Peer)
 class smartHomeApi extends StoreApi {
   store = smartHomeStore
 
@@ -33,16 +34,32 @@ class smartHomeApi extends StoreApi {
   static selectors = { selLivestate, selManuallySwitchedLights, selScenes, selCrontab }
 }
 
-// Build store hierarchy. The root-store itself doesn't have a purpose yet
-const rootStore = createStore().use({
-  smartHome: smartHomeStore,
-  // TODO: this will become it's own store once we get to it.
-  // Look at https://bowheart.github.io/react-zedux/guides/timeTravel.html for hints on how to make a fermenter-store
-  // accessible in the fermenter-component hierarchy
-  fermenter: {},
-})
+// Create store and reactor for fermenter context
+const fermenterStore = createFermenterStore(Peer)
+class fermenterApi extends StoreApi {
+  store = fermenterStore
 
-// // DEBUGGING
+  static actors = {
+    updateRts,
+    setFermenterCommand,
+  }
+
+  static selectors = { selFermenterRts, selLimits }
+}
+
+// PENDING: NOT USED YET - not sure if we'll ever need it, for now a separate smartHome- and fermenter-store seem
+// sufficient.
+
+// // Build store hierarchy. The root-store itself doesn't have a purpose yet
+// const rootStore = createStore().use({
+//   smartHome: smartHomeStore,
+//   // TODO: this will become it's own store once we get to it.
+//   // Look at https://bowheart.github.io/react-zedux/guides/timeTravel.html for hints on how to make a fermenter-store
+//   // accessible in the fermenter-component hierarchy
+//   fermenter: {},
+// })
+
+// // DEBUGGING / DEMO
 // rootStore.inspect((storeBase, action) => {
 //   console.log('Root Store inspector received action', action)
 // })
@@ -55,9 +72,10 @@ const rootStore = createStore().use({
 
 // const RootContext = createContext(RootApi)
 const SmartHomeContext = createContext(smartHomeApi)
+const FermenterContext = createContext(fermenterApi)
 
-// Partially apply withRoot-Component with root-store
-// const withRootCtx = RootContext.consume('rootStore')
+// Partially apply store-components for consumption
 const withSmartHomeCtx = SmartHomeContext.consume('smartHomeStore')
+const withFermenterCtx = FermenterContext.consume('fermenterStore')
 
-export { SmartHomeContext, withSmartHomeCtx }
+export { SmartHomeContext, FermenterContext, withSmartHomeCtx, withFermenterCtx }

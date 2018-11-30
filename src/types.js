@@ -73,3 +73,28 @@ export type Prefs = {
 }
 
 export type AddressMap = { [id: string]: KnxAddress }
+
+export type FermenterEnv = {
+  createdAt: number,
+  temperature: number,
+  humidity: number,
+  isValid: boolean,
+  errors: number,
+  iterations: number,
+}
+
+export type FermenterRunTimeState = {
+  active: boolean,
+  status: string,
+  hasEnvEmergency: boolean,
+  hasDeviceMalfunction: boolean,
+  currentCmd: ?string,
+  tempLimits: { lower: number, upper: number },
+  humidityLimits: { lower: number, upper: number },
+  notifications: Notifications,
+}
+
+export type FermenterState = {
+  env: FermenterEnv,
+  rts: FermenterRunTimeState,
+}
