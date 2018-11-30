@@ -6,10 +6,6 @@ import { renderToString } from 'react-dom/server'
 import JssProvider from 'react-jss/lib/JssProvider'
 import getPageContext from './src/mui/getPageContext'
 
-import wrapWithContext from './src/wrap-context-provider'
-
-export const wrapRootElement = wrapWithContext
-
 // Enable MaterialUI SSR support - see the note / issue below for a simpler way in the future!
 // Source: https://github.com/mui-org/material-ui/tree/master/examples/gatsby
 // TODO: CjK 19.10.2018 - there seems to be no difference in HTML returned from the server with or without this code!?

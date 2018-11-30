@@ -3,12 +3,16 @@ import React from 'react'
 import Layout from '../components/layout'
 import Crontab from '../components/crontab'
 
-const MapPage = props => {
+import { SmartHomeContext } from '../context/root'
+
+const CrontabPage = props => {
   return (
-    <Layout>
-      <Crontab />
-    </Layout>
+    <SmartHomeContext.Provider>
+      <Layout>
+        <Crontab />
+      </Layout>
+    </SmartHomeContext.Provider>
   )
 }
 
-export default MapPage
+export default CrontabPage
