@@ -42,7 +42,7 @@ export const selLimits = select(state => ({ tempLimits: state.tempLimits, humidi
 
 // Return subscription for remote run-time-state changes
 const handleFermenterUpdates = (Peer, store) => {
-  const subscription = Peer.getFermenterState$()
+  const subscription = Peer.getFermenterState$(initialState)
     .pipe(
       catchError(err => {
         log.error(`An error occured while handling Fermenter live-updates: %O`, err)

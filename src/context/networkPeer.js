@@ -1,4 +1,5 @@
 // @flow
+import type { FermenterState } from '../types.js'
 
 import Gun from 'gun'
 import { Observable, fromEventPattern } from 'rxjs'
@@ -92,22 +93,44 @@ const cronjob$ = Observable.create(observer => {
   return () => cronjobLst.map().off()
 })
 
-const fermenterState$ = Observable.create(observer => {
-  peer
-    .get('fermenter')
-    .map()
-    .on((newState, type) => {
-      log.debug(`Type of fermenter-state is <${type}>`)
-      observer.next(R.dissoc('_', newState))
-      // Never completes
-      // observer.complete()
-    })
-  return () =>
+const fermenterState$ = (initialState: FermenterState) =>
+  Observable.create(observer => {
     peer
       .get('fermenter')
+      .once()
       .map()
-      .off()
-})
+      .on(
+        // Currently supported fermenter-state categories: "env" or "rts"
+        (newState, category) => {
+          log.debug(`Category of fermenter-state is <${category}>`)
+          // Get all subkeys per category that are not retrieved yet (but skip GUN-internal '_' objects)
+          const incompleteKeys = R.reject(
+            R.either(R.isNil, R.equals('_')),
+            R.map(key => (R.has('#', newState[key]) ? key : null), R.keys(newState))
+          )
+          log.debug(`Incomplete keys to load: ${JSON.stringify(incompleteKeys)}`)
+          R.map(
+            key =>
+              peer
+                .get('fermenter')
+                .get(category)
+                .get(key)
+                .on(
+                  (data, subkey) => {
+                    // log.debug(`==> data: ${JSON.stringify(data)} - key: ${subkey}`)
+                    observer.next({ [category]: R.dissoc('_', R.assoc(subkey, R.dissoc('_', data), newState)) })
+                  },
+                  { change: true }
+                ),
+            incompleteKeys
+          )
+          observer.next({ [category]: R.dissoc('_', newState) })
+          // Never completes
+          // observer.complete()
+        }
+      )
+    return () => peer.get('fermenter').off()
+  })
 
 function createPeer() {
   return {
@@ -122,8 +145,8 @@ function createPeer() {
       return cronjob$
     },
     sendUpdateGroupAddrReq,
-    getFermenterState$() {
-      return fermenterState$
+    getFermenterState$(initialState) {
+      return fermenterState$(initialState)
     },
   }
 }
