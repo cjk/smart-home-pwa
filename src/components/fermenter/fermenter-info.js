@@ -37,7 +37,7 @@ const fermenterInfoStyles = {
 
 const FermenterInfo = ({ fermenterStore, classes }: Props) => {
   console.log(fermenterStore)
-  // const {selEnv} = fermenterStore
+  const { selEnv } = fermenterStore
 
   return (
     <Card className={classes.infoCard}>
@@ -47,7 +47,7 @@ const FermenterInfo = ({ fermenterStore, classes }: Props) => {
         </Avatar>
         <CardContent className={classes.deviceReading}>
           <Typography type="headline" component="h3">
-            {/* {`${env.temperature}℃`} */}
+            {`${selEnv().temperature}℃`}
           </Typography>
         </CardContent>
         <Avatar>
@@ -55,7 +55,7 @@ const FermenterInfo = ({ fermenterStore, classes }: Props) => {
         </Avatar>
         <CardContent className={classes.deviceReading}>
           <Typography type="headline" component="h3">
-            {/* {`${env.humidity}%`} */}
+            {`${selEnv().humidity}%`}
           </Typography>
         </CardContent>
       </div>

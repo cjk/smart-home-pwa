@@ -32,12 +32,13 @@ const initialState: FermenterState = {
   },
 }
 
-export const updateRts = act('updateRts')
+export const updateState = act('updateState')
 export const setTempLimits = act('setTempLimits')
 export const setHumLimits = act('setHumLimits')
 export const setFermenterCommand = act('setFermenterCommand')
 
 export const selFermenterRts: FermenterRunTimeState = select(state => state.rts)
+export const selEnv = select(state => state.env)
 export const selLimits = select(state => ({ tempLimits: state.tempLimits, humidityLimits: state.humidityLimits }))
 
 // Return subscription for remote run-time-state changes
@@ -51,7 +52,7 @@ const handleFermenterUpdates = (Peer, store) => {
     .subscribe(
       (newState: FermenterRunTimeState) => {
         log.debug(`Fermenter-state changed / was added: ${JSON.stringify(newState)}`)
-        // store.dispatch(updateRts(rts))
+        store.dispatch(updateState(newState))
       },
       err => log.error(`got an error: ${err}`),
       () => log.debug('Fermenter RT-state update-tream completed!')
@@ -62,9 +63,9 @@ const handleFermenterUpdates = (Peer, store) => {
 
 function createFermenterStore(Peer) {
   const fermenterReactor = react(initialState)
-    .to(updateRts)
+    .to(updateState)
     .withReducers((state: FermenterState, { payload }) => {
-      return R.assoc('rts', payload, state)
+      return R.merge(state, payload)
     })
     .to(setFermenterCommand)
     .withReducers((state: FermenterState, { payload }) => {

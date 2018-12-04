@@ -10,14 +10,21 @@ import {
   activateScene,
 } from './smartHomeStore'
 
-import { createFermenterStore, selFermenterRts, selLimits, updateRts, setFermenterCommand } from './fermenterStore'
+import {
+  createFermenterStore,
+  selFermenterRts,
+  selEnv,
+  selLimits,
+  updateState,
+  setFermenterCommand,
+} from './fermenterStore'
 
 import { StoreApi, createContext } from 'react-zedux'
 import { createPeer } from './networkPeer'
 
-import { logger } from '../lib/debug'
+// import { logger } from '../lib/debug'
 
-const log = logger('rootCtx')
+// const log = logger('rootCtx')
 
 const Peer = createPeer()
 
@@ -40,11 +47,11 @@ class fermenterApi extends StoreApi {
   store = fermenterStore
 
   static actors = {
-    updateRts,
+    updateState,
     setFermenterCommand,
   }
 
-  static selectors = { selFermenterRts, selLimits }
+  static selectors = { selEnv, selFermenterRts, selLimits }
 }
 
 // PENDING: NOT USED YET - not sure if we'll ever need it, for now a separate smartHome- and fermenter-store seem
