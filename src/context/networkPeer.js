@@ -142,7 +142,7 @@ function createPeer() {
       return cronjob$
     },
     sendUpdateGroupAddrReq,
-    getFermenterState$() {
+    subscribeToFermenterState$() {
       return fermenterState$()
     },
     unsubscribeFromFermenterState$() {

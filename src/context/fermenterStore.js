@@ -36,30 +36,12 @@ export const updateState = act('updateState')
 export const setTempLimits = act('setTempLimits')
 export const setHumLimits = act('setHumLimits')
 export const setFermenterCommand = act('setFermenterCommand')
+export const startFermenterData = act('startFermenterData')
+export const stopFermenterData = act('stopFermenterData')
 
 export const selFermenterRts: FermenterRunTimeState = select(state => state.rts)
 export const selEnv = select(state => state.env)
 export const selLimits = select(state => ({ tempLimits: state.tempLimits, humidityLimits: state.humidityLimits }))
-
-// Return subscription for remote run-time-state changes
-const handleFermenterUpdates = (Peer, store) => {
-  const subscription = Peer.getFermenterState$()
-    .pipe(
-      catchError(err => {
-        log.error(`An error occured while handling Fermenter live-updates: %O`, err)
-      })
-    )
-    .subscribe(
-      (newState: FermenterRunTimeState) => {
-        log.debug(`Fermenter-state changed / was added: ${JSON.stringify(newState)}`)
-        store.dispatch(updateState(newState))
-      },
-      err => log.error(`got an error: ${err}`),
-      () => log.debug('Fermenter RT-state update-tream completed!')
-    )
-
-  return subscription
-}
 
 function createFermenterStore(Peer) {
   const fermenterReactor = react(initialState)
@@ -71,12 +53,33 @@ function createFermenterStore(Peer) {
     .withReducers((state: FermenterState, { payload }) => {
       return R.assocPath(['rts', 'currentCmd'], payload, state)
     })
+    .to(startFermenterData)
+    .withProcessors((dispatch, action, state) => {
+      Peer.subscribeToFermenterState$()
+        .pipe(
+          catchError(err => {
+            log.error(`An error occured while handling Fermenter live-updates: %O`, err)
+          })
+        )
+        .subscribe(
+          (newState: FermenterRunTimeState) => {
+            log.debug(`Fermenter-state changed / was added: ${JSON.stringify(newState)}`)
+            dispatch(updateState(newState))
+          },
+          err => log.error(`got an error: ${err}`),
+          () => log.debug('Fermenter RT-state update-tream completed!')
+        )
+    })
+    .to(stopFermenterData)
+    .withProcessors((dispatch, action, state) => {
+      Peer.unsubscribeFromFermenterState$()
+    })
 
   const store = createStore()
   store.use(fermenterReactor)
 
   // Activate handlers - must occur *after* store-reactor is established!
-  handleFermenterUpdates(Peer, store)
+  // handleFermenterUpdates(Peer, store)
 
   return store
 }

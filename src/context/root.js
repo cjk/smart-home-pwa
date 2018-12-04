@@ -12,11 +12,13 @@ import {
 
 import {
   createFermenterStore,
+  updateState,
+  setFermenterCommand,
+  startFermenterData,
+  stopFermenterData,
   selFermenterRts,
   selEnv,
   selLimits,
-  updateState,
-  setFermenterCommand,
 } from './fermenterStore'
 
 import { StoreApi, createContext } from 'react-zedux'
@@ -49,6 +51,8 @@ class fermenterApi extends StoreApi {
   static actors = {
     updateState,
     setFermenterCommand,
+    startFermenterData,
+    stopFermenterData,
   }
 
   static selectors = { selEnv, selFermenterRts, selLimits }
