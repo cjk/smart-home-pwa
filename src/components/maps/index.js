@@ -18,7 +18,8 @@ import { toggleAddrVal } from '../../lib/utils'
 
 import { logger } from '../../lib/debug'
 
-// PENDING / TODO: Because of a bug in react-hot-loader react-hooks need this in dev-mode:
+// PENDING / TODO: Because of a bug in react-hot-loader react-hooks need this in dev-mode.
+// Might soon be unnecessary in newer Gatsby-releases.
 import { setConfig } from 'react-hot-loader'
 setConfig({ pureSFC: true })
 
