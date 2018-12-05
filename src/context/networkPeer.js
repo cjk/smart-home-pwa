@@ -2,7 +2,7 @@
 
 import Gun from 'gun'
 import * as R from 'ramda'
-import { Observable, empty, fromEventPattern, zip } from 'rxjs'
+import { combineLatest, Observable, empty, fromEventPattern } from 'rxjs'
 import { auditTime, map, scan, tap } from 'rxjs/operators'
 import { createValueStreamFromPath } from '../lib/utils'
 
@@ -120,7 +120,7 @@ const fermenterState$ = (unsubscribe = false) => {
   const humLimit$ = createValueStreamFromPath(fermenterNode, ['rts', 'humidityLimits'])
   const notification$ = createValueStreamFromPath(fermenterNode, ['rts', 'notifications'])
 
-  return zip(env$, rts$, tempLimit$, humLimit$, notification$).pipe(
+  return combineLatest(env$, rts$, tempLimit$, humLimit$, notification$).pipe(
     auditTime(50),
     map(([env, rts, tempLimits, humidityLimits, notifications]) => ({
       env,

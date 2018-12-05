@@ -12,7 +12,7 @@ export const toggleAddrVal = (address: KnxAddress) => R.assoc('value', !address.
 // #createValueStreamFromPath(fermenterNode, ['env'])
 export const createValueStreamFromPath = (root: any, path: array<string>) => {
   const peerNode = R.reduce((node, key) => node.get(key), root, path)
-  return fromEventPattern(hndl => peerNode.on(hndl)).pipe(
+  return fromEventPattern(hndl => peerNode.on(hndl), hndl => peerNode.off(hndl)).pipe(
     map(
       R.pipe(
         R.head,
