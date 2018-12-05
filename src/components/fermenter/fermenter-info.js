@@ -2,7 +2,7 @@
 
 import type { Env } from '../../types'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import * as R from 'ramda'
 
 import Avatar from '@material-ui/core/Avatar'
@@ -36,17 +36,7 @@ const fermenterInfoStyles = {
 }
 
 const FermenterInfo = ({ fermenterStore, classes }: Props) => {
-  const { selEnv, startFermenterData, stopFermenterData } = fermenterStore
-
-  useEffect(
-    () => {
-      startFermenterData()
-      return () => {
-        stopFermenterData()
-      }
-    },
-    [1]
-  )
+  const { selEnv } = fermenterStore
 
   return (
     <Card className={classes.infoCard}>

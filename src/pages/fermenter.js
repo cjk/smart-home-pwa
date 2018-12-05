@@ -1,14 +1,14 @@
 import React from 'react'
 
 import Layout from '../components/layout'
-import FermenterInfo from '../components/fermenter/fermenter-info'
+import FermenterIndex from '../components/fermenter'
 import { FermenterContext } from '../context/root'
 
-const FermenterPage = props => {
+const FermenterPage = () => {
   return (
     <FermenterContext.Provider>
       <Layout>
-        <FermenterInfo />
+        <FermenterIndex />
       </Layout>
     </FermenterContext.Provider>
   )
