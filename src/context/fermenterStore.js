@@ -39,9 +39,13 @@ export const setFermenterCommand = act('setFermenterCommand')
 export const startFermenterData = act('startFermenterData')
 export const stopFermenterData = act('stopFermenterData')
 
-export const selFermenterRts: FermenterRunTimeState = select(state => state.rts)
+export const selDevices: FermenterRunTimeState = select(state => state.devices)
 export const selEnv = select(state => state.env)
-export const selLimits = select(state => ({ tempLimits: state.tempLimits, humidityLimits: state.humidityLimits }))
+export const selIsRunning = select(state => state.rts.active)
+export const selLimits = select(state => ({
+  tempLimits: state.rts.tempLimits,
+  humidityLimits: state.rts.humidityLimits,
+}))
 
 function createFermenterStore(Peer) {
   const fermenterReactor = react(initialState)

@@ -16,8 +16,9 @@ import {
   setFermenterCommand,
   startFermenterData,
   stopFermenterData,
-  selFermenterRts,
+  selDevices,
   selEnv,
+  selIsRunning,
   selLimits,
 } from './fermenterStore'
 
@@ -55,7 +56,7 @@ class fermenterApi extends StoreApi {
     stopFermenterData,
   }
 
-  static selectors = { selEnv, selFermenterRts, selLimits }
+  static selectors = { selEnv, selDevices, selIsRunning, selLimits }
 }
 
 // PENDING: NOT USED YET - not sure if we'll ever need it, for now a separate smartHome- and fermenter-store seem

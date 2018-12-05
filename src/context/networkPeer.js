@@ -111,6 +111,14 @@ const fermenterState$ = (unsubscribe = false) => {
       .get('rts')
       .get('notifications')
       .off()
+    fermenterNode
+      .get('devices')
+      .get('heater')
+      .off()
+    fermenterNode
+      .get('devices')
+      .get('humidifier')
+      .off()
     return empty
   }
 
@@ -119,11 +127,14 @@ const fermenterState$ = (unsubscribe = false) => {
   const tempLimit$ = createValueStreamFromPath(fermenterNode, ['rts', 'tempLimits'])
   const humLimit$ = createValueStreamFromPath(fermenterNode, ['rts', 'humidityLimits'])
   const notification$ = createValueStreamFromPath(fermenterNode, ['rts', 'notifications'])
+  const heater$ = createValueStreamFromPath(fermenterNode, ['devices', 'heater'])
+  const humidifier$ = createValueStreamFromPath(fermenterNode, ['devices', 'humidifier'])
 
-  return combineLatest(env$, rts$, tempLimit$, humLimit$, notification$).pipe(
+  return combineLatest(env$, rts$, tempLimit$, humLimit$, notification$, heater$, humidifier$).pipe(
     auditTime(50),
-    map(([env, rts, tempLimits, humidityLimits, notifications]) => ({
+    map(([env, rts, tempLimits, humidityLimits, notifications, heater, humidifier]) => ({
       env,
+      devices: { heater, humidifier },
       rts: R.merge(rts, { tempLimits, humidityLimits, notifications }),
     }))
   )

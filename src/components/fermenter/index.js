@@ -4,6 +4,8 @@ import * as R from 'ramda'
 import React, { useEffect } from 'react'
 
 import FermenterInfo from './fermenter-info'
+import FermenterControl from './fermenter-control'
+
 import Paper from '@material-ui/core/Paper'
 import { withStyles } from '@material-ui/core/styles'
 import { withFermenterCtx } from '../../context/root'
@@ -16,7 +18,7 @@ type Props = {
 const styles = {
   fermenterRoot: {
     marginTop: '5em',
-    padding: 10,
+    padding: 20,
   },
 }
 
@@ -36,6 +38,7 @@ const FermenterIndex = ({ fermenterStore, classes }: Props) => {
   return (
     <Paper className={classes.fermenterRoot}>
       <FermenterInfo />
+      <FermenterControl />
     </Paper>
   )
 }
