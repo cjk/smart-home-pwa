@@ -14,6 +14,7 @@ import {
   createFermenterStore,
   updateState,
   setFermenterCommand,
+  setTempLimits,
   startFermenterData,
   stopFermenterData,
   selDevices,
@@ -52,6 +53,7 @@ class fermenterApi extends StoreApi {
   static actors = {
     updateState,
     setFermenterCommand,
+    setTempLimits,
     startFermenterData,
     stopFermenterData,
   }

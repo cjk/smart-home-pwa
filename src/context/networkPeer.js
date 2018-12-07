@@ -159,6 +159,9 @@ function createPeer() {
     unsubscribeFromFermenterState$() {
       return fermenterState$(true)
     },
+    getFermenterRts() {
+      return peer.get('fermenter').get('rts')
+    },
   }
 }
 

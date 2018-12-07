@@ -20,11 +20,8 @@ import { withStyles } from '@material-ui/core/styles'
 import { withFermenterCtx } from '../../context/root'
 
 type Props = {
-  rts: RunTimeState,
-  devices: Devices,
+  fermenterStore: any,
   classes: Object,
-  sendFermenterCmd: Function,
-  sendFermenterTempLimits: Function,
 }
 
 const fermenterControlStyles = {

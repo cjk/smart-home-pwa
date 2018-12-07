@@ -53,10 +53,28 @@ function createFermenterStore(Peer) {
     .withReducers((state: FermenterState, { payload }) => {
       return R.merge(state, payload)
     })
+
     .to(setFermenterCommand)
     .withReducers((state: FermenterState, { payload }) => {
       return R.assocPath(['rts', 'currentCmd'], payload, state)
     })
+    .withProcessors((dispatch, action, state) => {
+      Peer.getFermenterRts()
+        .get('currentCmd')
+        .put(action.payload)
+    })
+
+    .to(setTempLimits)
+    // NOTE We decided against a reducer here since our processor changes the remote state, which will bounce back to us
+    // via our updateState-action (see above), thus we'd write the same update twice with millis in between.
+    .withProcessors((dispatch, action, state) => {
+      const [lower, upper] = action.payload
+
+      Peer.getFermenterRts()
+        .get('tempLimits')
+        .put({ lower, upper })
+    })
+
     .to(startFermenterData)
     .withProcessors((dispatch, action, state) => {
       Peer.subscribeToFermenterState$()
@@ -74,6 +92,7 @@ function createFermenterStore(Peer) {
           () => log.debug('Fermenter RT-state update-tream completed!')
         )
     })
+
     .to(stopFermenterData)
     .withProcessors((dispatch, action, state) => {
       Peer.unsubscribeFromFermenterState$()
@@ -81,9 +100,6 @@ function createFermenterStore(Peer) {
 
   const store = createStore()
   store.use(fermenterReactor)
-
-  // Activate handlers - must occur *after* store-reactor is established!
-  // handleFermenterUpdates(Peer, store)
 
   return store
 }
