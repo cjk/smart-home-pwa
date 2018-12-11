@@ -11,10 +11,14 @@ module.exports = {
       kill_timeout: 3000,
       env: {
         DEBUG: 'smtApp:*,error,debug',
+        PEER_ADDR: 'localhost',
+        PEER_PORT: '8765',
       },
       env_production: {
         NODE_ENV: 'production',
         DEBUG: 'smtApp:*,error',
+        PEER_ADDR: '192.168.1.28',
+        PEER_PORT: '8765',
       },
     },
   ],

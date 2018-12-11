@@ -10,7 +10,7 @@ import { logger } from '../lib/debug'
 
 const log = logger('networkPeer')
 
-const peer = Gun('http://localhost:8765/gun')
+const peer = Gun(`http://${process.env.PEER_ADDR}:${process.env.PEER_PORT}/gun`)
 
 const addrLst = peer.get('knxAddrList')
 
