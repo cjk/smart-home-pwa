@@ -10,7 +10,9 @@ import { logger } from '../lib/debug'
 
 const log = logger('networkPeer')
 
-const peer = Gun(`http://${process.env.PEER_ADDR}:${process.env.PEER_PORT}/gun`)
+const peerAddr = process.env.PEER_ADDR
+const peerPort = process.env.PEER_PORT
+const peer = Gun(`http://${peerAddr}:${peerPort}/gun`)
 
 const addrLst = peer.get('knxAddrList')
 
@@ -141,6 +143,8 @@ const fermenterState$ = (unsubscribe = false) => {
 }
 
 function createPeer() {
+  log.debug(`Connecting to peer on http://${peerAddr}:${peerPort}/gun`)
+
   return {
     peer,
     getLivestate$() {

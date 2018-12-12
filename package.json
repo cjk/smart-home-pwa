@@ -31,7 +31,7 @@
   ],
   "license": "MIT",
   "scripts": {
-    "dev": "env DEBUG='smtHome:*,error,debug' npx gatsby develop",
+    "dev": "env DEBUG='smtHome:*,error,debug' PEER_ADDR='localhost' PEER_PORT='8765' npx gatsby develop",
     "build": "gatsby build",
     "format": "prettier --write '**/*.js'",
     "test": "echo \"Error: no test specified\" && exit 1"
