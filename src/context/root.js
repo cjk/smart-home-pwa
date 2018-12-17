@@ -6,6 +6,8 @@ import {
   selManuallySwitchedLights,
   selScenes,
   selCrontab,
+  onLivestateOnline,
+  onLivestateOffline,
   setKnxAddrVal,
   activateScene,
 } from './smartHomeStore'
@@ -38,6 +40,8 @@ class smartHomeApi extends StoreApi {
   store = smartHomeStore
 
   static actors = {
+    onLivestateOnline,
+    onLivestateOffline,
     setKnxAddrVal,
     activateScene,
   }

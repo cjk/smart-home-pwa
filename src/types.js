@@ -1,5 +1,7 @@
 // @flow
 
+import type { Subscription } from 'rxjs'
+
 export type KnxAddress = {
   id: string,
   name: string,
@@ -16,7 +18,13 @@ export type KnxAddress = {
 
 export type SmartHomeState = {
   livestate: { [id: string]: KnxAddress },
-  eventHistory: Array<BusEvent>,
+  scenes: { [id: string]: Scene },
+  crontab: { [id: string]: CrontabTask },
+  cloudSubscriptions: {
+    livestate: Subscription,
+  },
+  cloudManager: ?any,
+  // eventHistory: Array<BusEvent>,
 }
 
 // Scene types

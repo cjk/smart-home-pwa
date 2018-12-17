@@ -4,7 +4,7 @@
 
 import type { KnxAddress } from '../types'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
@@ -23,7 +23,6 @@ type Props = {
   classes: Object,
 }
 
-// TODO
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -31,13 +30,33 @@ const styles = theme => ({
   control: {
     padding: theme.spacing.unit * 2,
   },
+  offlineMessage: {
+    marginTop: '5em',
+  },
 })
 
 const Dashboard = ({ classes, smartHomeStore }: Props) => {
-  const { selLivestate, selManuallySwitchedLights, setKnxAddrVal } = smartHomeStore
+  const { onLivestateOnline, onLivestateOffline, selManuallySwitchedLights, setKnxAddrVal } = smartHomeStore
   const onLightSwitch = (addr: KnxAddress) => setKnxAddrVal(toggleAddrVal(addr))
 
-  return !useOffline() ? (
+  // Handle (re-) subscriptions to livestate when we go offline
+  const isOffline = useOffline()
+  useEffect(
+    () => {
+      if (isOffline) {
+        onLivestateOffline()
+      } else {
+        onLivestateOnline()
+      }
+    },
+    [isOffline]
+  )
+
+  return isOffline ? (
+    <Typography className={classes.offlineMessage} variant="h5">
+      Still loading address-state ...
+    </Typography>
+  ) : (
     <Grid container className={classes.root}>
       <Grid item xs={12}>
         <OverviewLights
@@ -47,8 +66,6 @@ const Dashboard = ({ classes, smartHomeStore }: Props) => {
         />
       </Grid>
     </Grid>
-  ) : (
-    <Typography variant="h5">Still loading address-state ...</Typography>
   )
 }
 

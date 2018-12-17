@@ -21,6 +21,7 @@ const initialState: SmartHomeState = {
   scenes: {},
   crontab: {},
   cloudSubscriptions: {},
+  cloudManager: undefined,
 }
 
 export const upsertKnxAddr = act('upsertKnxAddr')
@@ -28,6 +29,8 @@ export const upsertScenes = act('upsertScenes')
 export const upsertCronjobs = act('upsertCronjobs')
 export const setKnxAddrVal = act('setKnxAddrVal')
 export const activateScene = act('activateScene')
+export const onLivestateOnline = act('onLivestateOnline')
+export const onLivestateOffline = act('onLivestateOffline')
 
 export const selLivestate: AddressMap = select(state => state.livestate)
 export const selManuallySwitchedLights: AddressMap = select(selLivestate, addrLst =>
@@ -36,9 +39,8 @@ export const selManuallySwitchedLights: AddressMap = select(selLivestate, addrLs
 export const selScenes: Scenes = select(state => state.scenes)
 export const selCrontab: Crontab = select(state => state.crontab)
 
-// Return subscription for remote KNX-state mutations / events and how to act on them
-const handleKnxUpdates = (Peer, store) => {
-  const subscription = Peer.getLivestate$()
+const subscribeToLiveAddressState = (Peer, dispatch) => {
+  return Peer.getLivestate$()
     .pipe(
       catchError(err => {
         log.error(`An error occured while handling KNX live-updates: %O`, err)
@@ -47,18 +49,14 @@ const handleKnxUpdates = (Peer, store) => {
     .subscribe(
       addr => {
         // log.debug(`KNX-address value changed / was added: ${JSON.stringify(addr)}`)
-        store.dispatch(upsertKnxAddr(addr))
+        dispatch(upsertKnxAddr(addr))
       },
       err => log.error(`got an error: ${err}`),
       () => log.debug('KNX-address update stream completed!')
     )
-
-  // Use a zedux inducer to partially update our store-state with the current livestate-subscription, so we can
-  // unsubscribe etc. later!
-  store.dispatch(() => ({ cloudSubscriptions: { livestate: subscription } }))
 }
 
-// TODO: Refactor out into own module
+// TODO: Refactor out into own module?!
 const syncScenesToStore = (Peer, store) => {
   // Returns an array of arrived scenes every 2 seconds
   const scene$ = Peer.getScenes$()
@@ -66,7 +64,6 @@ const syncScenesToStore = (Peer, store) => {
     .pipe(
       // Hold new scene-changes back for some time to prevent too rapid screen-updates
       buffer(scene$.pipe(debounceTime(100))),
-      // tap(s => log.debug('got scene with 1-n tasks: %O', s)),
       catchError(err => {
         log.error(`An error occured while loading scenes from remote-peers: %O`, err)
       })
@@ -83,7 +80,7 @@ const syncScenesToStore = (Peer, store) => {
   return subscription
 }
 
-// TODO: Refactor out into own module
+// TODO: Refactor out into own module?!
 const syncCronjobsToStore = (Peer, store) => {
   // Returns an array of arrived cronjobs every 2 seconds
   const cronjob$ = Peer.getCronjobs$()
@@ -116,7 +113,7 @@ function createSmartHomeStore(Peer) {
       return R.assocPath(['livestate', payload.id], payload, state)
     })
     .to(setKnxAddrVal)
-    .withProcessors((dispatch, action, state) => {
+    .withProcessors((dispatch, action, _state) => {
       const { payload: addr } = action
       log.debug(`Changing address from x to ${JSON.stringify(addr)}`)
       Peer.peer
@@ -152,13 +149,30 @@ function createSmartHomeStore(Peer) {
         .get(cronjob.jobId)
         .put(cronjob)
     })
+    .to(onLivestateOnline)
+    .withProcessors((dispatch, action, state) => {
+      log.debug('Re-subscribing to address-stream')
+      const sub = subscribeToLiveAddressState(state.cloudManager, dispatch)
+      // Use a zedux inducer to partially update our store-state with the current livestate-subscription, so we can
+      // unsubscribe later!
+      dispatch(() => ({ cloudSubscriptions: { livestate: sub } }))
+    })
+    .to(onLivestateOffline)
+    .withProcessors((dispatch, action, state) => {
+      log.debug('Unsubscribing from address-stream')
+      state.cloudSubscriptions.livestate.unsubscribe()
+    })
 
   const store = createStore()
   store.use(smartHomeReactor)
 
-  // Activate handlers - must occur *after* store-reactor is established!
-  handleKnxUpdates(Peer, store)
+  // After store-reactor is established, add PeerDB-object to our global state.
+  // This helps managing on-/offline state by (un-) subscribing when connection is dropped.
+  store.dispatch(state => R.assoc('cloudManager', Peer, state))
 
+  // PENDING: Unlike (address-) livestate, scenes and cronjobs are only subscribed to *once* and thus not refreshed when we were offline at some time.
+  // If this bothers you, make those subscriptions also dynamically managed - see #subscribeToLiveAddressState and the
+  // useOffline-hook in dashboard-/map-index component.
   syncScenesToStore(Peer, store)
   syncCronjobsToStore(Peer, store)
 
