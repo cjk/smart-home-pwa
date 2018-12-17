@@ -4,7 +4,7 @@
 
 import type { KnxAddress } from '../types'
 
-import * as React from 'react'
+import React from 'react'
 import * as R from 'ramda'
 
 import Grid from '@material-ui/core/Grid'
@@ -15,6 +15,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import OverviewLights from './overviewLights'
 
+import { useOffline } from '../lib/hooks'
 import { toggleAddrVal } from '../lib/utils'
 
 type Props = {
@@ -36,7 +37,7 @@ const Dashboard = ({ classes, smartHomeStore }: Props) => {
   const { selLivestate, selManuallySwitchedLights, setKnxAddrVal } = smartHomeStore
   const onLightSwitch = (addr: KnxAddress) => setKnxAddrVal(toggleAddrVal(addr))
 
-  return selLivestate() ? (
+  return !useOffline() ? (
     <Grid container className={classes.root}>
       <Grid item xs={12}>
         <OverviewLights
@@ -47,7 +48,7 @@ const Dashboard = ({ classes, smartHomeStore }: Props) => {
       </Grid>
     </Grid>
   ) : (
-    <Typography variant="h5">Still syncing address-state ...</Typography>
+    <Typography variant="h5">Still loading address-state ...</Typography>
   )
 }
 

@@ -20,6 +20,7 @@ const initialState: SmartHomeState = {
   livestate: {},
   scenes: {},
   crontab: {},
+  cloudSubscriptions: {},
 }
 
 export const upsertKnxAddr = act('upsertKnxAddr')
@@ -52,7 +53,9 @@ const handleKnxUpdates = (Peer, store) => {
       () => log.debug('KNX-address update stream completed!')
     )
 
-  return subscription
+  // Use a zedux inducer to partially update our store-state with the current livestate-subscription, so we can
+  // unsubscribe etc. later!
+  store.dispatch(() => ({ cloudSubscriptions: { livestate: subscription } }))
 }
 
 // TODO: Refactor out into own module
