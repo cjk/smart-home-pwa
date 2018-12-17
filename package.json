@@ -1,7 +1,7 @@
 {
   "name": "SmartHomeApp",
   "description": "Universal PWA React-app for controlling your smart home environment.",
-  "version": "1.0.0",
+  "version": "2.0.1",
   "author": "Claus Klingberg <cjk@pobox.com>",
   "dependencies": {
     "@material-ui/core": "3.6.2",
@@ -29,7 +29,7 @@
   "keywords": [
     "gatsby"
   ],
-  "license": "MIT",
+  "license": "GPL-2.0",
   "scripts": {
     "dev": "env DEBUG='smtHome:*,error,debug' PEER_ADDR='localhost' PEER_PORT='8765' npx gatsby develop",
     "build": "gatsby build",
