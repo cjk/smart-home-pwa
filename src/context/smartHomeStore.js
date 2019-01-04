@@ -115,7 +115,7 @@ function createSmartHomeStore(Peer) {
     .to(setKnxAddrVal)
     .withProcessors((dispatch, action, _state) => {
       const { payload: addr } = action
-      log.debug(`Changing address from x to ${JSON.stringify(addr)}`)
+      log.debug(`Changing address from <?> to ${JSON.stringify(addr)}`)
       Peer.peer
         .get('knxAddrList')
         .get(addr.id)
