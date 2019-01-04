@@ -2,8 +2,8 @@
 
 import Gun from 'gun'
 import * as R from 'ramda'
-import { combineLatest, Observable, empty, fromEventPattern } from 'rxjs'
-import { auditTime, map, scan, tap } from 'rxjs/operators'
+import { combineLatest, of, Observable, empty, fromEventPattern } from 'rxjs'
+import { auditTime, delay, map, scan, tap } from 'rxjs/operators'
 import { createValueStreamFromPath } from '../lib/utils'
 
 import { logger } from '../lib/debug'
@@ -17,11 +17,16 @@ const peer = Gun(`http://${peerAddr}:${peerPort}/gun`)
 const addrLst = peer.get('knxAddrList')
 
 const knxLiveAddr$ = Observable.create(observer => {
-  addrLst.map().on(addr => {
-    observer.next(R.dissoc('_', addr))
-    // Never completes
-    // observer.complete()
-  })
+  // NOTE: experimental - add a slight delay before re-querying GunDB to give it time to re-establish it's connection
+  of(true)
+    .pipe(delay(250))
+    .subscribe(() =>
+      addrLst.map().on(addr => {
+        observer.next(R.dissoc('_', addr))
+        // Never completes
+        // observer.complete()
+      })
+    )
   return () => addrLst.map().off()
 })
 
