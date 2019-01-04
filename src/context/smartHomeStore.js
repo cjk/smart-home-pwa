@@ -4,7 +4,7 @@ import type { SmartHomeState, AddressMap, KnxAddress, Scenes } from '../types.js
 
 import * as R from 'ramda'
 import { act, createStore, react, select } from 'zedux'
-import { buffer, debounceTime, catchError } from 'rxjs/operators'
+import { buffer, debounceTime, distinct, catchError, tap } from 'rxjs/operators'
 import { createCronjobFromScene } from './cronjobs'
 import { logger } from '../lib/debug'
 
@@ -42,6 +42,8 @@ export const selCrontab: Crontab = select(state => state.crontab)
 const subscribeToLiveAddressState = (Peer, dispatch) => {
   return Peer.getLivestate$()
     .pipe(
+      // Current observable using #map().on() can produce duplicate address-contents, so we filter them here:
+      distinct(),
       catchError(err => {
         log.error(`An error occured while handling KNX live-updates: %O`, err)
       })
