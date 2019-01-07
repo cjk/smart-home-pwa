@@ -34,6 +34,7 @@ module.exports = {
       ref: 'origin/master',
       repo: 'git@github.com:cjk/smart-home-pwa.git',
       path: '/home/cjk/apps/smarthome-pwa',
+      'pre-deploy-local': 'rm -f *.tmp',
       'post-deploy': 'yarn install && yarn run build && pm2 reload ecosystem.config.js --env production',
     },
   },
