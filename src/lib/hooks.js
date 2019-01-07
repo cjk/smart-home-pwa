@@ -29,11 +29,16 @@ function useOffline() {
 
 // Custom hook to update + display current connection information
 function useConnection() {
-  const conn = typeof window === 'undefined' ? '4g' : window.navigator.connection
+  const conn =
+    typeof window === 'undefined'
+      ? '!?'
+      : typeof window.navigator.connection.type === 'undefined'
+      ? 'n/a'
+      : window.navigator.connection.type
   const [getConnection, setConnection] = useState(conn.effectiveType)
 
   function onConnectionChange() {
-    setConnection(conn.effectiveType)
+    setConnection('??')
   }
 
   useEffect(() => {
