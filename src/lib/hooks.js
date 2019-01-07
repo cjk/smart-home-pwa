@@ -40,7 +40,7 @@ function useConnection() {
     conn.addEventListener('change', onConnectionChange)
 
     return () => {
-      conn.removeEventListener('change')
+      conn.removeEventListener('change', onConnectionChange)
     }
   }, [])
 
