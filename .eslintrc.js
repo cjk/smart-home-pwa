@@ -6,7 +6,13 @@ module.exports = {
     node: true,
     es6: true,
   },
-  extends: ['eslint:recommended', 'plugin:flowtype/recommended', 'plugin:react/recommended'],
+  extends: [
+    'eslint:recommended',
+    'plugin:import/errors',
+    'plugin:import/warnings',
+    'plugin:flowtype/recommended',
+    'plugin:react/recommended',
+  ],
   plugins: ['flowtype', 'react-hooks'],
   globals: {
     window: true,
