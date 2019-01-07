@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 
-import { withStyles } from '@material-ui/core/styles'
+import Typography from '@material-ui/core/Typography'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
 import Button from '@material-ui/core/Button'
@@ -12,9 +12,12 @@ import MainIcon from '@material-ui/icons/Dashboard'
 import ScenesIcon from '@material-ui/icons/WallpaperOutlined'
 import CrontabIcon from '@material-ui/icons/WatchLaterOutlined'
 import { grey, indigo } from '@material-ui/core/colors'
+import { withStyles } from '@material-ui/core/styles'
 
 import { Link } from 'gatsby'
 import { compose } from 'ramda'
+
+import { useConnection } from '../lib/hooks'
 
 type AppBarProps = {
   conn: {
@@ -85,15 +88,20 @@ const MainAppBar = (props: AppBarProps) => {
             </Link>
           </IconButton>
 
-          <div className={classes.grow} />
-
           <Button className={classes.fermenterButton}>
             <Link to="/fermenter" className={classes.linkText}>
               Fermenter
             </Link>
           </Button>
 
-          {/* <ConnIndicator connState={connState} connErr={connErr} /> */}
+          <div className={classes.grow} />
+
+          {/* Show connection information */}
+          <div>
+            <Typography variant="h6" color="inherit" className={classes.grow}>
+              {useConnection()}
+            </Typography>
+          </div>
         </Toolbar>
       </AppBar>
     </div>

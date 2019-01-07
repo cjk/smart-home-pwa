@@ -1,9 +1,8 @@
 // @flow
 
-// A custom react hook to signal app-online + offline state using react-hooks
-
 import { useState, useEffect } from 'react'
 
+// A custom react hook to signal app-online + offline state using react-hooks
 function useOffline() {
   const [isOffline, setIsOffline] = useState(false)
 
@@ -28,4 +27,24 @@ function useOffline() {
   return isOffline
 }
 
-export { useOffline }
+// Custom hook to update + display current connection information
+function useConnection() {
+  const conn = window.navigator.connection
+  const [getConnection, setConnection] = useState(conn.effectiveType)
+
+  function onConnectionChange() {
+    setConnection(conn.effectiveType)
+  }
+
+  useEffect(() => {
+    conn.addEventListener('change', onConnectionChange)
+
+    return () => {
+      conn.removeEventListener('change')
+    }
+  }, [])
+
+  return getConnection
+}
+
+export { useOffline, useConnection }
