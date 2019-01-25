@@ -53,4 +53,28 @@ function useConnection() {
   return getConnection
 }
 
-export { useOffline, useConnection }
+// Custom hook to update + display current connection information
+// Give an action-parameter if you want to execute some logic / side-effects when the App becomes visible / hidden.
+function useVisibility(action) {
+  const docVisible = typeof window === 'undefined' ? null : document.visibilityState
+  const [getVisibility, setVisibility] = useState(docVisible)
+
+  function onVisChange() {
+    if (!docVisible) return
+
+    if (action) action(document.visibilityState)
+    setVisibility(document.visibilityState)
+  }
+
+  useEffect(() => {
+    window.addEventListener('visibilitychange', onVisChange)
+
+    return () => {
+      window.removeEventListener('visibilitychange', onVisChange)
+    }
+  }, [])
+
+  return getVisibility
+}
+
+export { useOffline, useConnection, useVisibility }

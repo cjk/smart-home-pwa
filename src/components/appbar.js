@@ -11,13 +11,15 @@ import HomeIcon from '@material-ui/icons/Home'
 import MainIcon from '@material-ui/icons/Dashboard'
 import ScenesIcon from '@material-ui/icons/WallpaperOutlined'
 import CrontabIcon from '@material-ui/icons/WatchLaterOutlined'
+import OnlineIcon from '@material-ui/icons/CloudDoneOutlined'
+import OfflineIcon from '@material-ui/icons/CloudOffOutlined'
 import { grey, indigo } from '@material-ui/core/colors'
 import { withStyles } from '@material-ui/core/styles'
 
 import { Link } from 'gatsby'
 import { compose } from 'ramda'
 
-import { useConnection } from '../lib/hooks'
+import { useOffline } from '../lib/hooks'
 
 type AppBarProps = {
   conn: {
@@ -99,7 +101,7 @@ const MainAppBar = (props: AppBarProps) => {
           {/* Show connection information */}
           <div>
             <Typography variant="h6" color="inherit" className={classes.grow}>
-              {useConnection()}
+              {useOffline() ? <OfflineIcon /> : <OnlineIcon />}
             </Typography>
           </div>
         </Toolbar>

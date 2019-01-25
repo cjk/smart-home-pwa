@@ -8,6 +8,7 @@ import {
   selCrontab,
   onLivestateOnline,
   onLivestateOffline,
+  onVisibilityChange,
   setKnxAddrVal,
   activateScene,
 } from './smartHomeStore'
@@ -42,6 +43,7 @@ class smartHomeApi extends StoreApi {
   static actors = {
     onLivestateOnline,
     onLivestateOffline,
+    onVisibilityChange,
     setKnxAddrVal,
     activateScene,
   }

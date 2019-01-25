@@ -31,6 +31,7 @@ export const setKnxAddrVal = act('setKnxAddrVal')
 export const activateScene = act('activateScene')
 export const onLivestateOnline = act('onLivestateOnline')
 export const onLivestateOffline = act('onLivestateOffline')
+export const onVisibilityChange = act('onVisibilityChange')
 
 export const selLivestate: AddressMap = select(state => state.livestate)
 export const selManuallySwitchedLights: AddressMap = select(selLivestate, addrLst =>
@@ -153,7 +154,7 @@ function createSmartHomeStore(Peer) {
     })
     .to(onLivestateOnline)
     .withProcessors((dispatch, action, state) => {
-      log.debug('Re-subscribing to address-stream')
+      log.debug('(Re-) subscribing to address-stream')
       const sub = subscribeToLiveAddressState(state.cloudManager, dispatch)
       // Use a zedux inducer to partially update our store-state with the current livestate-subscription, so we can
       // unsubscribe later!
@@ -163,6 +164,17 @@ function createSmartHomeStore(Peer) {
     .withProcessors((dispatch, action, state) => {
       log.debug('Unsubscribing from address-stream')
       state.cloudSubscriptions.livestate.unsubscribe()
+    })
+    .to(onVisibilityChange)
+    .withProcessors((dispatch, action, state) => {
+      log.debug(`App-visibility changed to <${action.payload}>`)
+      // Renew knx-state subscription if App was hidden and is now visible again, since the content might have changed
+      // in the meantime:
+      if (action.payload === 'visible') {
+        state.cloudSubscriptions.livestate.unsubscribe()
+        const sub = subscribeToLiveAddressState(state.cloudManager, dispatch)
+        dispatch(() => ({ cloudSubscriptions: { livestate: sub } }))
+      }
     })
 
   const store = createStore()

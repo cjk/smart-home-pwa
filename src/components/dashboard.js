@@ -15,7 +15,7 @@ import { withStyles } from '@material-ui/core/styles'
 
 import OverviewLights from './overviewLights'
 
-import { useOffline } from '../lib/hooks'
+import { useOffline, useVisibility } from '../lib/hooks'
 import { toggleAddrVal } from '../lib/utils'
 
 type Props = {
@@ -36,21 +36,26 @@ const styles = theme => ({
 })
 
 const Dashboard = ({ classes, smartHomeStore }: Props) => {
-  const { onLivestateOnline, onLivestateOffline, selManuallySwitchedLights, setKnxAddrVal } = smartHomeStore
+  const {
+    onLivestateOnline,
+    onLivestateOffline,
+    onVisibilityChange,
+    selManuallySwitchedLights,
+    setKnxAddrVal,
+  } = smartHomeStore
   const onLightSwitch = (addr: KnxAddress) => setKnxAddrVal(toggleAddrVal(addr))
+
+  useVisibility(onVisibilityChange)
 
   // Handle (re-) subscriptions to livestate when we go offline
   const isOffline = useOffline()
-  useEffect(
-    () => {
-      if (isOffline) {
-        onLivestateOffline()
-      } else {
-        onLivestateOnline()
-      }
-    },
-    [isOffline]
-  )
+  useEffect(() => {
+    if (isOffline) {
+      onLivestateOffline()
+    } else {
+      onLivestateOnline()
+    }
+  }, [isOffline])
 
   return isOffline ? (
     <Typography className={classes.offlineMessage} variant="h5">
