@@ -4,21 +4,21 @@
   "version": "2.0.2",
   "author": "Claus Klingberg <cjk@pobox.com>",
   "dependencies": {
-    "@material-ui/core": "3.9.0",
+    "@material-ui/core": "3.9.2",
     "@material-ui/icons": "^3.0.2",
     "date-fns": "^1.29.0",
     "debug": "^4.1.0",
     "gatsby": "^2.0.95",
     "gatsby-plugin-flow": "^1.0.2",
-    "gatsby-plugin-manifest": "latest",
+    "gatsby-plugin-manifest": "^2.0.17",
     "gatsby-plugin-react-helmet": "^3.0.1",
     "gatsby-plugin-remove-serviceworker": "latest",
     "gun": ">=0.9.999996",
     "jss": "latest",
     "nanoid": "^2.0.0",
     "ramda": "^0.26.0",
-    "react": "16.8.0-alpha.1",
-    "react-dom": "16.8.0-alpha.1",
+    "react": "16.8.1",
+    "react-dom": "16.8.1",
     "react-helmet": "^5.2.0",
     "react-jss": "latest",
     "react-zedux": "^0.4.1",
@@ -37,7 +37,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "eslint-plugin-react-hooks": "^0.0.0",
+    "eslint-plugin-react-hooks": "^1.0.1",
     "prettier": "^1.14.2"
   },
   "repository": {
