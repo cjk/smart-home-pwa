@@ -16,7 +16,7 @@ const jobTemplate: CronJob = {
   tasks: null,
 }
 
-const buildCronjobWithTasks = (name: string, tasksAry: Array<Task>) => {
+const buildCronjobWithTasks = (name, tasksAry) => {
   const jobIdLens = R.lens(R.prop('jobId'), R.assoc('jobId'))
   const orgJobId = R.view(jobIdLens)(jobTemplate)
 
@@ -28,7 +28,8 @@ const buildCronjobWithTasks = (name: string, tasksAry: Array<Task>) => {
 
   return R.pipe(
     newJobId,
-    R.assoc('tasks', tasks)
+    R.assoc('tasks', tasks),
+    R.assoc('createdAt', Date.now())
   )(jobTemplate)
 }
 
