@@ -1,14 +1,14 @@
 {
   "name": "SmartHomeApp",
   "description": "Universal PWA React-app for controlling your smart home environment.",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "author": "Claus Klingberg <cjk@pobox.com>",
   "dependencies": {
     "@material-ui/core": "3.9.2",
     "@material-ui/icons": "^3.0.2",
     "date-fns": "^1.29.0",
     "debug": "^4.1.0",
-    "gatsby": "^2.0.95",
+    "gatsby": "^2.1.2",
     "gatsby-plugin-flow": "^1.0.2",
     "gatsby-plugin-manifest": "^2.0.17",
     "gatsby-plugin-react-helmet": "^3.0.1",
