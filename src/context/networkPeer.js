@@ -3,7 +3,7 @@
 import Gun from 'gun'
 import * as R from 'ramda'
 import { combineLatest, Observable, empty, fromEventPattern } from 'rxjs'
-import { auditTime, map, scan, tap } from 'rxjs/operators'
+import { auditTime, distinctUntilChanged, map, scan, tap } from 'rxjs/operators'
 import { createValueStreamFromPath } from '../lib/utils'
 
 import { logger } from '../lib/debug'
@@ -63,13 +63,13 @@ const cronjob$ = Observable.create(observer => {
   cronjobLst
     // Iterate over available jobs, but filter out old-nulled-out cronjobs
     .map(j => (j === null ? undefined : j))
-    .on(
+    .once(
       cronjob => {
         // NOTE / PENDING: Since we *still* get null-objects here when the backend removes processed temporary cronjobs,
         // *despite* we're filtering out nulls above, we need this additional conditional logic here. Might be a bug in
         // GunDB?!
         if (R.isNil(cronjob)) {
-          observer.error(cronjob)
+          observer.error(`Got unexpected <${cronjob}> when expecting a cronjob-object`)
         } else {
           const tasksHndlr = hndl =>
             cronjobLst
@@ -80,6 +80,7 @@ const cronjob$ = Observable.create(observer => {
           fromEventPattern(tasksHndlr)
             .pipe(
               map(t => R.dissoc('_', R.head(t))),
+              distinctUntilChanged(),
               scan((tasks, task) => R.append(task, tasks), [])
             )
             .subscribe(tasks => {
