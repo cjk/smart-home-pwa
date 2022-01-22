@@ -15,7 +15,7 @@
     "gatsby-plugin-remove-serviceworker": "latest",
     "gun": ">=0.9.999996",
     "jss": "latest",
-    "nanoid": "^2.0.0",
+    "nanoid": "^3.1.31",
     "ramda": "^0.26.0",
     "react": "16.8.6",
     "react-dom": "16.8.6",
